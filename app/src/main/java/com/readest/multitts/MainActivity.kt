@@ -44,6 +44,8 @@ import com.readest.multitts.ui.ContentsBottomSheet
 import com.readest.multitts.ui.MultiTTSDownloadDialog
 import com.readest.multitts.ui.ReaderSettingsBottomSheet
 import com.readest.multitts.ui.TTSControlBottomSheet
+import com.readest.multitts.update.UpdateChecker
+import com.readest.multitts.update.UpdateInstaller
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Locale
@@ -326,6 +328,11 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
 
         binding.btnSortBooks.setOnClickListener {
             showSortMenu()
+        }
+
+        binding.btnCheckUpdate.text = "v${BuildConfig.VERSION_NAME} · tap to check for update"
+        binding.btnCheckUpdate.setOnClickListener {
+            checkForUpdate()
         }
 
         binding.btnHeroMultiTts.setOnClickListener {
@@ -1071,4 +1078,136 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         TtsEngine.releaseIfIdle()
         super.onDestroy()
     }
+
+    // ---------------------------------------------------------------- updates
+
+    private var updateCheckRunning = false
+
+    /** Asks GitHub for the latest release and offers to install it. */
+    private fun checkForUpdate() {
+        if (updateCheckRunning) return
+        updateCheckRunning = true
+        val current = BuildConfig.VERSION_NAME
+        binding.btnCheckUpdate.text = "Checking GitHub…"
+
+        Thread {
+            val result = UpdateChecker.check(current)
+            runOnUiThread {
+                updateCheckRunning = false
+                binding.btnCheckUpdate.text = "v$current · tap to check for update"
+                when (result) {
+                    is UpdateChecker.Result.UpToDate ->
+                        androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("You're up to date")
+                            .setMessage("v$current is the newest release on GitHub.")
+                            .setPositiveButton("OK", null)
+                            .show()
+
+                    is UpdateChecker.Result.Failed ->
+                        androidx.appcompat.app.AlertDialog.Builder(this)
+                            .setTitle("Couldn't check for updates")
+                            .setMessage("${result.reason}\n\nYou can also look at the releases page in a browser.")
+                            .setPositiveButton("Open releases") { _, _ -> openReleasesPage() }
+                            .setNegativeButton("Close", null)
+                            .show()
+
+                    is UpdateChecker.Result.Available -> showUpdateAvailable(result)
+                }
+            }
+        }.start()
+    }
+
+    private fun showUpdateAvailable(result: UpdateChecker.Result.Available) {
+        val release = result.release
+        val notes = if (release.notes.isBlank()) "" else "\n\n${release.notes}"
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Update available: v${release.version}")
+            .setMessage("You have v${result.current}, released ${release.publishedAt}.$notes")
+            .setNegativeButton("Later", null)
+
+        if (release.apkUrl != null) {
+            builder.setPositiveButton("Download & install") { _, _ ->
+                downloadUpdate(release)
+            }
+            builder.setNeutralButton("Open page") { _, _ -> openReleasesPage() }
+        } else {
+            // A release without an attached APK is nothing this can install.
+            builder.setPositiveButton("Open page") { _, _ -> openReleasesPage() }
+        }
+        builder.show()
+    }
+
+    private fun downloadUpdate(release: UpdateChecker.Release) {
+        val url = release.apkUrl ?: return
+        val name = release.apkName ?: "Readest-MultiTTS-v${release.version}.apk"
+
+        val progressView = android.widget.ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
+            max = 100
+            setPadding(48, 32, 48, 8)
+        }
+        val statusView = android.widget.TextView(this).apply {
+            text = "Starting download…"
+            setPadding(56, 0, 56, 24)
+        }
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            addView(progressView)
+            addView(statusView)
+        }
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Downloading v${release.version}")
+            .setView(container)
+            .setCancelable(false)
+            .setNegativeButton("Cancel") { _, _ -> UpdateInstaller.cancel() }
+            .show()
+
+        UpdateInstaller.download(this, url, name, object : UpdateInstaller.Progress {
+            override fun onProgress(percent: Int, downloadedBytes: Long, totalBytes: Long) {
+                if (percent >= 0) {
+                    progressView.isIndeterminate = false
+                    progressView.progress = percent
+                } else {
+                    progressView.isIndeterminate = true
+                }
+                statusView.text = if (totalBytes > 0) {
+                    "${downloadedBytes / (1024 * 1024)} MB of ${totalBytes / (1024 * 1024)} MB"
+                } else {
+                    "${downloadedBytes / (1024 * 1024)} MB"
+                }
+            }
+
+            override fun onReady(file: java.io.File) {
+                dialog.dismiss()
+                try {
+                    UpdateInstaller.install(this@MainActivity, file)
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Downloaded, but the installer wouldn't open: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+
+            override fun onError(message: String) {
+                dialog.dismiss()
+                androidx.appcompat.app.AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Download failed")
+                    .setMessage(message)
+                    .setPositiveButton("Open releases") { _, _ -> openReleasesPage() }
+                    .setNegativeButton("Close", null)
+                    .show()
+            }
+        })
+    }
+
+    private fun openReleasesPage() {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(UpdateChecker.RELEASES_PAGE)))
+        } catch (e: Exception) {
+            Toast.makeText(this, "No browser available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 }

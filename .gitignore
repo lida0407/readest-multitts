@@ -2,13 +2,14 @@
 build/
 app/build/
 .gradle/
-local.properties
+*.apk
 
 # IDE
 .idea/
 *.iml
 .DS_Store
 
-# Signing
+# Machine-specific / signing
+local.properties
 *.jks
 *.keystore

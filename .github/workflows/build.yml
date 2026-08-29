@@ -1,7 +1,11 @@
 name: Build APK
 
-# Every push to main produces a downloadable APK, and a tag publishes a release,
-# so the phone can be updated straight from GitHub.
+# Every push to main produces a downloadable APK so the build stays honest.
+#
+# Releases are NOT published from here on purpose: each runner generates its own
+# debug signing key, so a CI-built APK cannot install over a phone that already
+# has a locally-built copy. Releases are cut with ./release.sh instead, which
+# signs with the same debug keystore every time.
 on:
   push:
     branches: [main]
@@ -40,10 +44,3 @@ jobs:
         with:
           name: Readest-MultiTTS-v${{ steps.name.outputs.version }}
           path: Readest-MultiTTS-v${{ steps.name.outputs.version }}.apk
-
-      - name: Publish release on a tag
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: Readest-MultiTTS-v${{ steps.name.outputs.version }}.apk
-          generate_release_notes: true

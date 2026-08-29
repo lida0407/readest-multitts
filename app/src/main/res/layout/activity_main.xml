@@ -264,6 +264,24 @@
                         android:textStyle="bold" />
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/btnCheckUpdate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_chip_soft_blue"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:paddingStart="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="11dp"
+                    android:paddingBottom="5dp"
+                    android:text="v1.13.0 · tap to check for update"
+                    android:textColor="@color/accent_dark"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnMainImport"
                     android:layout_width="match_parent"
