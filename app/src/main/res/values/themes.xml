@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.ReadestMultiTTS" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">@color/accent</item>
+        <!-- Complete the M3 scheme, otherwise components fall back to Material purple -->
+        <item name="colorPrimaryContainer">@color/accent_soft</item>
+        <item name="colorOnPrimaryContainer">@color/accent_dark</item>
+        <item name="colorSecondaryContainer">@color/accent_soft</item>
+        <item name="colorOnSecondaryContainer">@color/accent_dark</item>
+        <item name="colorSurfaceVariant">@color/track</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/surface_border</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:colorBackground">@color/bg_app</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="android:statusBarColor">@color/bg_app</item>
+        <item name="android:navigationBarColor">@color/bg_app</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+        <item name="bottomSheetDialogTheme">@style/Theme.ReadestMultiTTS.BottomSheet</item>
+    </style>
+
+    <style name="Widget.Readest.Segmented" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="backgroundTint">@color/segmented_bg</item>
+        <item name="android:textColor">@color/segmented_text</item>
+        <item name="strokeColor">@color/surface_border</item>
+    </style>
+
+    <style name="Theme.ReadestMultiTTS.BottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.ReadestMultiTTS.BottomSheet</item>
+    </style>
+
+    <style name="Widget.ReadestMultiTTS.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">@color/surface</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.ReadestMultiTTS.BottomSheet</item>
+    </style>
+
+    <style name="ShapeAppearance.ReadestMultiTTS.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">26dp</item>
+        <item name="cornerSizeTopRight">26dp</item>
+    </style>
+</resources>

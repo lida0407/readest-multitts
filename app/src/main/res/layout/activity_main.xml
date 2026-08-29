@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_app">
+
+    <!-- Reader top toolbar (hidden on library screen) -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bg_app"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:contentInsetStart="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="4dp"
+                android:paddingEnd="10dp">
+
+                <ImageButton
+                    android:id="@+id/btnBack"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Back to Library"
+                    android:src="@android:drawable/ic_menu_revert"
+                    android:visibility="gone"
+                    app:tint="@color/text_secondary" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingStart="8dp">
+
+                    <TextView
+                        android:id="@+id/tvAppTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Readest++"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="MultiTTS 离线朗读"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- MultiTTS Engine Status Indicator -->
+                <TextView
+                    android:id="@+id/chipMultiTtsStatus"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_chip_green_soft"
+                    android:paddingStart="7dp"
+                    android:paddingTop="3dp"
+                    android:paddingEnd="7dp"
+                    android:paddingBottom="3dp"
+                    android:text="MultiTTS ✓"
+                    android:textColor="@color/green"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <!-- Table of contents / chapter jump -->
+                <ImageButton
+                    android:id="@+id/btnContents"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Contents and bookmarks"
+                    android:src="@drawable/ic_contents_list"
+                    android:visibility="gone"
+                    app:tint="@color/text_secondary" />
+
+                <!-- Bookmark the current position -->
+                <ImageButton
+                    android:id="@+id/btnBookmark"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Bookmark this spot"
+                    android:src="@drawable/ic_bookmark_outline"
+                    android:visibility="gone"
+                    app:tint="@color/text_secondary" />
+
+                <!-- Reader Theme / Display Settings Button -->
+                <TextView
+                    android:id="@+id/btnReaderSettings"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Themes &amp; Fonts"
+                    android:gravity="center"
+                    android:text="Aa"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <ImageButton
+                    android:id="@+id/btnTtsMenu"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="TTS Options"
+                    android:src="@android:drawable/ic_lock_silent_mode_off"
+                    app:tint="@color/text_secondary" />
+
+                <ImageButton
+                    android:id="@+id/btnImportBook"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Import Book"
+                    android:src="@android:drawable/ic_input_add"
+                    app:tint="@color/accent" />
+            </LinearLayout>
+        </com.google.android.material.appbar.MaterialToolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <!-- Library UI container -->
+        <LinearLayout
+            android:id="@+id/libraryContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- Hero header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_header_gradient"
+                android:orientation="vertical"
+                android:paddingStart="20dp"
+                android:paddingTop="24dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_logo_rounded"
+                        android:gravity="center"
+                        android:text="R"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="11dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Readest++"
+                            android:textColor="@color/text_primary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="MultiTTS 离线朗读 · Offline audio reading"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/btnHeroMultiTts"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chip_green_soft"
+                        android:paddingStart="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="4dp"
+                        android:text="MultiTTS ✓"
+                        android:textColor="@color/green"
+                        android:textSize="10.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/chipCachedPlayback"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chip_soft_blue"
+                        android:paddingStart="11dp"
+                        android:paddingTop="5dp"
+                        android:paddingEnd="11dp"
+                        android:paddingBottom="5dp"
+                        android:text="⚡ Offline audio · 离线音频"
+                        android:textColor="@color/accent_dark"
+                        android:textSize="10.5sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_chip_soft_blue"
+                        android:paddingStart="11dp"
+                        android:paddingTop="5dp"
+                        android:paddingEnd="11dp"
+                        android:paddingBottom="5dp"
+                        android:text="TXT · EPUB · MOBI · PDF"
+                        android:textColor="@color/accent_dark"
+                        android:textSize="10.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMainImport"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="@color/accent"
+                    android:text="＋ Import a book · 导入书籍"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14.5sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="26dp"
+                    app:elevation="3dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvShelfLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:letterSpacing="0.08"
+                    android:text="MY SHELF 我的书架"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11.5sp"
+                    android:textStyle="bold" />
+
+                <!-- Shelf order: last read / title / recently added -->
+                <TextView
+                    android:id="@+id/btnSortBooks"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_chip_soft_blue"
+                    android:contentDescription="Change shelf order"
+                    android:paddingStart="11dp"
+                    android:paddingTop="5dp"
+                    android:paddingEnd="11dp"
+                    android:paddingBottom="5dp"
+                    android:text="Last read 最近阅读 ▾"
+                    android:textColor="@color/accent_dark"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvEmptyShelf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:text="书架还是空的\nImport a TXT / EPUB / MOBI / PDF to start reading"
+                android:textColor="@color/text_tertiary"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRecentBooks"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="24dp" />
+        </LinearLayout>
+
+        <!-- Reader WebView container -->
+        <WebView
+            android:id="@+id/readerWebView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <!-- Shown while a book is being parsed on a background thread -->
+        <LinearLayout
+            android:id="@+id/openingOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/bg_app"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:indeterminateTint="@color/accent" />
+
+            <TextView
+                android:id="@+id/tvOpeningLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Opening…"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Floating TTS Mini Player Bar -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/ttsMiniPlayerCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_margin="12dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="10dp"
+            app:strokeColor="@color/surface_border"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="14dp"
+                android:paddingTop="11dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="12dp">
+
+                <!-- Spoken text sentence preview & cache source tag -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvCurrentSentence"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Ready to read aloud…"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11.5sp" />
+
+                    <TextView
+                        android:id="@+id/tvAudioSourceBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_pill_green_soft"
+                        android:paddingStart="8dp"
+                        android:paddingTop="3dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="3dp"
+                        android:text="⚡ Cached · 0% CPU"
+                        android:textColor="@color/green"
+                        android:textSize="9.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Chapter scrubber: drag to jump to any sentence.
+                     Secondary track shows how much of the chapter is cached. -->
+                <SeekBar
+                    android:id="@+id/sliderTtsProgress"
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:layout_marginTop="2dp"
+                    android:max="1000"
+                    android:maxHeight="5dp"
+                    android:minHeight="5dp"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:progressDrawable="@drawable/seekbar_tts_progress"
+                    android:splitTrack="false"
+                    android:thumb="@drawable/seekbar_thumb"
+                    android:thumbOffset="0dp" />
+
+                <TextView
+                    android:id="@+id/tvScrubberLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-2dp"
+                    android:layout_marginBottom="2dp"
+                    android:text=""
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="10sp" />
+
+                <!-- Controls row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvTtsSpeed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chip_speed"
+                        android:paddingStart="11dp"
+                        android:paddingTop="5dp"
+                        android:paddingEnd="11dp"
+                        android:paddingBottom="5dp"
+                        android:text="1.0x"
+                        android:textColor="@color/accent"
+                        android:textSize="11.5sp"
+                        android:textStyle="bold" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/btnTtsPrev"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Previous Sentence"
+                        android:src="@android:drawable/ic_media_previous"
+                        app:tint="@color/text_secondary" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabTtsPlayPause"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginEnd="14dp"
+                        android:contentDescription="Play/Pause"
+                        android:src="@android:drawable/ic_media_play"
+                        app:backgroundTint="@color/accent"
+                        app:fabCustomSize="48dp"
+                        app:tint="#FFFFFF" />
+
+                    <ImageButton
+                        android:id="@+id/btnTtsNext"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Next Sentence"
+                        android:src="@android:drawable/ic_media_next"
+                        app:tint="@color/text_secondary" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/btnTtsPanelExpand"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="Expand TTS settings"
+                        android:src="@android:drawable/ic_menu_preferences"
+                        app:tint="@color/text_tertiary" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </FrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

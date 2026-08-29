@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Readest++ Royal Blue light palette (design mockups 1a-1e / 2a) -->
+    <color name="accent">#2563EB</color>
+    <color name="accent_dark">#1D4ED8</color>
+    <color name="accent_soft">#DBEAFE</color>
+    <color name="accent_tint">#EFF4FF</color>
+    <color name="primary">#2563EB</color>
+    <color name="primary_dark">#1D4ED8</color>
+
+    <color name="bg_app">#FAFAFA</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_border">#E4E7EE</color>
+    <color name="track">#EEF1F6</color>
+
+    <color name="text_primary">#18181B</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="text_tertiary">#94A3B8</color>
+
+    <color name="green">#059669</color>
+    <color name="green_soft">#ECFDF5</color>
+    <color name="green_border">#A7F3D0</color>
+    <color name="green_line">#A7F3D0</color>
+    <color name="green_card">#F0FDF6</color>
+    <color name="green_text">#047857</color>
+
+    <color name="badge_epub">#4F46E5</color>
+    <color name="badge_txt">#0D9488</color>
+    <color name="badge_pdf">#DC2626</color>
+    <color name="badge_mobi">#D97706</color>
+
+    <color name="danger">#EF4444</color>
+    <color name="red_line">#FCA5A5</color>
+
+    <!-- Legacy aliases still referenced -->
+    <color name="bg_light">#FAFAFA</color>
+    <color name="bg_dark">#FAFAFA</color>
+    <color name="card_bg_light">#FFFFFF</color>
+    <color name="card_bg_dark">#FFFFFF</color>
+    <color name="text_primary_light">#18181B</color>
+    <color name="text_secondary_light">#64748B</color>
+    <color name="text_primary_dark">#18181B</color>
+    <color name="text_secondary_dark">#64748B</color>
+
+    <color name="ic_launcher_background">#1E40AF</color>
+</resources>

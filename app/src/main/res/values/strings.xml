@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Readest++</string>
+    <string name="library_title">My Shelf 我的书架</string>
+    <string name="import_book">Import a book · 导入书籍</string>
+    <string name="tts_play">Play</string>
+    <string name="tts_pause">Pause</string>
+    <string name="tts_settings">Voice &amp; playback · 语音设置</string>
+    <string name="pre_generate_chapter">Start pre-cache · 开始缓存</string>
+    <string name="pre_generate_desc">Generate and save audio locally to save battery &amp; data</string>
+    <string name="multitts_not_installed">MultiTTS engine is not detected on your device</string>
+    <string name="download_multitts">Download MultiTTS</string>
+</resources>

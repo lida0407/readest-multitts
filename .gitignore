@@ -1,0 +1,14 @@
+# Build output
+build/
+app/build/
+.gradle/
+local.properties
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Signing
+*.jks
+*.keystore

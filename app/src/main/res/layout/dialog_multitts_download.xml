@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_light"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:src="@android:drawable/ic_dialog_info"
+        app:tint="@color/accent" />
+
+    <TextView
+        android:id="@+id/tvDialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:text="MultiTTS Engine Setup"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvDialogMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:lineSpacingMultiplier="1.2"
+        android:text="MultiTTS provides hundreds of natural, offline voices (XiaoMi, Edge, Tencent, ByteDance, Acapela, Vocalizer). You can download MultiTTS APK or configure your system speech engine."
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp" />
+
+    <!-- Download MultiTTS Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDownloadMultiTTS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@color/accent"
+        android:text="Download MultiTTS APK (GitHub/Mirror)"
+        android:textAllCaps="false"
+        app:cornerRadius="10dp"
+        app:icon="@android:drawable/stat_sys_download" />
+
+    <!-- Download Voice Packets Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDownloadVoicePacks"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Get MultiTTS Voice Packs (isstts, etc.)"
+        android:textAllCaps="false"
+        app:cornerRadius="10dp" />
+
+    <!-- Open System TTS Settings -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOpenSystemTtsSettings"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Open Android TTS Settings"
+        android:textAllCaps="false"
+        android:textColor="@color/text_secondary"
+        app:cornerRadius="10dp"
+        app:strokeColor="@color/surface_border" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDialogDismiss"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Close"
+        android:textColor="@color/text_tertiary" />
+
+</LinearLayout>

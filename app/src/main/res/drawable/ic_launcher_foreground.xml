@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Open book + voice wave mark (design mockup 2d) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.5"
+        android:scaleY="0.5"
+        android:translateX="24"
+        android:translateY="24">
+        <path
+            android:pathData="M60,40 C52,34 40,33 32,36 L32,78 C40,75 52,76 60,82 C68,76 80,75 88,78 L88,36 C80,33 68,34 60,40 Z"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4.5"
+            android:strokeLineJoin="round"
+            android:fillColor="#00000000" />
+        <path
+            android:pathData="M60,41 L60,81"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineCap="round"
+            android:strokeAlpha="0.85"
+            android:fillColor="#00000000" />
+        <path
+            android:pathData="M98,52 L98,66"
+            android:strokeColor="#93C5FD"
+            android:strokeWidth="4"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+        <path
+            android:pathData="M106,56 L106,62"
+            android:strokeColor="#93C5FD"
+            android:strokeWidth="4"
+            android:strokeLineCap="round"
+            android:fillColor="#00000000" />
+    </group>
+</vector>
