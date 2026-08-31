@@ -406,6 +406,80 @@
         }
     };
 
+
+    // ---------------------------------------------------------------- words
+
+    const WORD_CHAR = /[\p{L}\p{N}'\u2019\-]/u;
+    const CJK = /[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\u3040-\u30FF\uAC00-\uD7AF]/u;
+
+    function clearWordHighlight() {
+        document.querySelectorAll('.word-pick').forEach(function (el) {
+            const parent = el.parentNode;
+            if (!parent) return;
+            parent.replaceChild(document.createTextNode(el.textContent), el);
+            parent.normalize();
+        });
+    }
+
+    /**
+     * Finds the word under a screen point. CJK has no spaces, so a run of up to
+     * eight characters is returned and the dictionary picks the longest prefix
+     * it actually knows.
+     */
+    function wordAtPoint(x, y) {
+        let range = null;
+        if (document.caretRangeFromPoint) {
+            range = document.caretRangeFromPoint(x, y);
+        } else if (document.caretPositionFromPoint) {
+            const pos = document.caretPositionFromPoint(x, y);
+            if (pos) {
+                range = document.createRange();
+                range.setStart(pos.offsetNode, pos.offset);
+            }
+        }
+        if (!range) return null;
+
+        const node = range.startContainer;
+        if (!node || node.nodeType !== 3) return null;
+        const text = node.textContent;
+        let i = Math.min(range.startOffset, text.length - 1);
+        if (i < 0) return null;
+
+        // A tap landing just past a word should still pick that word.
+        if (!WORD_CHAR.test(text[i]) && i > 0 && WORD_CHAR.test(text[i - 1])) i--;
+        if (!WORD_CHAR.test(text[i])) return null;
+
+        let start = i;
+        let end = i + 1;
+        if (CJK.test(text[i])) {
+            while (end < text.length && CJK.test(text[end]) && end - start < 8) end++;
+        } else {
+            while (start > 0 && WORD_CHAR.test(text[start - 1]) && !CJK.test(text[start - 1])) start--;
+            while (end < text.length && WORD_CHAR.test(text[end]) && !CJK.test(text[end])) end++;
+        }
+
+        const word = text.slice(start, end);
+        if (!word.trim()) return null;
+
+        // Highlight it, so it is obvious which word the sheet is about.
+        clearWordHighlight();
+        try {
+            const mark = document.createRange();
+            mark.setStart(node, start);
+            mark.setEnd(node, end);
+            const span = document.createElement('span');
+            span.className = 'word-pick';
+            mark.surroundContents(span);
+        } catch (e) {
+            // surroundContents throws across element boundaries; the word is
+            // still usable, it just does not get highlighted.
+        }
+
+        return word;
+    }
+
+    ReaderApp.clearWordHighlight = clearWordHighlight;
+
     // Tap and Swipe Gestures
     document.addEventListener('touchstart', function (e) {
         if (e.touches.length === 1) {
@@ -417,11 +491,17 @@
 
             clearLongPress();
             if (touchStartSentence >= 0) {
+                const pressX = touchStartX;
+                const pressY = touchStartY;
                 longPressTimer = setTimeout(function () {
                     longPressFired = true;
                     const item = sentencesList[touchStartSentence];
-                    if (item) {
-                        if (navigator.vibrate) navigator.vibrate(18);
+                    if (!item) return;
+                    if (navigator.vibrate) navigator.vibrate(18);
+                    const word = wordAtPoint(pressX, pressY);
+                    if (word && window.AndroidBridge && window.AndroidBridge.onWordLongPress) {
+                        window.AndroidBridge.onWordLongPress(word, item.index, item.text);
+                    } else {
                         ReaderApp.onSentenceLongPress(item.index, item.text);
                     }
                 }, LONG_PRESS_MS);

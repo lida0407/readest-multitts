@@ -233,3 +233,11 @@ body.mode-scroll #content-container {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+
+/* The word a long-press picked out, while its action sheet is open. */
+.word-pick {
+    background: rgba(88, 133, 255, 0.28);
+    border-radius: 3px;
+    box-shadow: 0 0 0 2px rgba(88, 133, 255, 0.28);
+}

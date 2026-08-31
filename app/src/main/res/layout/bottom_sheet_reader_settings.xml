@@ -240,4 +240,31 @@
             android:textSize="12sp" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="Look-ups"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOpenDictionaries"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="📚 Dictionaries · 词典"
+        android:textAllCaps="false"
+        android:textSize="13sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="Long-press any word while reading to hear it, look it up, or translate it."
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp" />
+
 </LinearLayout>

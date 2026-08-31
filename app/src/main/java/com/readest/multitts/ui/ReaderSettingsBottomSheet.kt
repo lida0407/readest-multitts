@@ -16,7 +16,8 @@ class ReaderSettingsBottomSheet(
     private var currentMode: String = "paginated",
     private val onThemeSelected: (String) -> Unit,
     private val onFontSizeChanged: (Int) -> Unit,
-    private val onModeChanged: (String) -> Unit
+    private val onModeChanged: (String) -> Unit,
+    private val onOpenDictionaries: () -> Unit
 ) : BottomSheetDialogFragment() {
 
     private var _binding: BottomSheetReaderSettingsBinding? = null
@@ -60,6 +61,11 @@ class ReaderSettingsBottomSheet(
             val size = value.toInt()
             binding.tvFontSizeVal.text = "$size px"
             onFontSizeChanged(size)
+        }
+
+        binding.btnOpenDictionaries.setOnClickListener {
+            onOpenDictionaries()
+            dismiss()
         }
 
         binding.rgReadingMode.check(

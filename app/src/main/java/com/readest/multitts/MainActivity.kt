@@ -43,7 +43,11 @@ import com.readest.multitts.ui.ClickFeedback
 import com.readest.multitts.ui.ContentsBottomSheet
 import com.readest.multitts.ui.MultiTTSDownloadDialog
 import com.readest.multitts.ui.ReaderSettingsBottomSheet
+import com.readest.multitts.dict.DictionaryStore
+import com.readest.multitts.dict.Translator
+import com.readest.multitts.ui.DictionaryManagerBottomSheet
 import com.readest.multitts.ui.TTSControlBottomSheet
+import com.readest.multitts.ui.WordActionBottomSheet
 import com.readest.multitts.update.UpdateChecker
 import com.readest.multitts.update.UpdateInstaller
 import java.io.File
@@ -129,6 +133,18 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     ) { uri: Uri? ->
         uri?.let { importBookFromUri(it) }
     }
+
+    private val dictionaryPickerLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri ?: return@registerForActivityResult
+        val name = getFileName(uri) ?: "dictionary.mobi"
+        dictionarySheet?.startImport(uri, name)
+    }
+
+    private val dictionaryStore by lazy { DictionaryStore(applicationContext) }
+    private var dictionarySheet: DictionaryManagerBottomSheet? = null
+    private var wordSheetOpen = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // The bottom sheets are constructor-injected fragments; they cannot be restored
@@ -851,7 +867,8 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
                 currentReadingMode = mode
                 prefs.edit().putString("reading_mode", mode).apply()
                 binding.readerWebView.evaluateJavascript("ReaderApp.setReadingMode('$mode')", null)
-            }
+            },
+            onOpenDictionaries = { showDictionaryManager() }
         )
         sheet.show(supportFragmentManager, "ReaderSettingsBottomSheet")
     }
@@ -991,6 +1008,39 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
                 Toast.makeText(this, "At first chapter", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun onWordLongPress(word: String, sentenceIndex: Int, sentenceText: String) {
+        runOnUiThread {
+            if (wordSheetOpen) return@runOnUiThread
+            wordSheetOpen = true
+            val target = prefs.getString("translate_target", null) ?: Translator.deviceLanguage()
+            WordActionBottomSheet(
+                word = word,
+                sentenceIndex = sentenceIndex,
+                sentenceText = sentenceText,
+                store = dictionaryStore,
+                defaultTarget = target,
+                onTargetChanged = { prefs.edit().putString("translate_target", it).apply() },
+                onSpeak = { text -> ttsController.speak(text, "word_lookup") },
+                onReadFromHere = { index -> onSentenceClicked(index, sentenceText) },
+                onManageDictionaries = { showDictionaryManager() },
+                onDismissed = {
+                    wordSheetOpen = false
+                    binding.readerWebView.evaluateJavascript("ReaderApp.clearWordHighlight();", null)
+                }
+            ).show(supportFragmentManager, "word")
+        }
+    }
+
+    private fun showDictionaryManager() {
+        val sheet = DictionaryManagerBottomSheet(dictionaryStore) {
+            dictionaryPickerLauncher.launch(
+                arrayOf("application/x-mobipocket-ebook", "application/octet-stream", "*/*")
+            )
+        }
+        dictionarySheet = sheet
+        sheet.show(supportFragmentManager, "dictionaries")
     }
 
     override fun onPageChanged(pageIndex: Int, totalPages: Int, firstVisibleSentence: Int) {

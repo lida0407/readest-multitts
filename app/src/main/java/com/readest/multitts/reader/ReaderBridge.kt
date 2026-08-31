@@ -11,6 +11,7 @@ interface ReaderBridgeListener {
     fun requestPrevChapter()
     fun toggleToolbars()
     fun onPageChanged(pageIndex: Int, totalPages: Int, firstVisibleSentence: Int)
+    fun onWordLongPress(word: String, sentenceIndex: Int, sentenceText: String)
 }
 
 class ReaderBridge(private val listener: ReaderBridgeListener) {
@@ -61,5 +62,10 @@ class ReaderBridge(private val listener: ReaderBridgeListener) {
     @JavascriptInterface
     fun onPageChanged(pageIndex: Int, totalPages: Int, firstVisibleSentence: Int) {
         listener.onPageChanged(pageIndex, totalPages, firstVisibleSentence)
+    }
+
+    @JavascriptInterface
+    fun onWordLongPress(word: String, sentenceIndex: Int, sentenceText: String) {
+        listener.onWordLongPress(word, sentenceIndex, sentenceText)
     }
 }

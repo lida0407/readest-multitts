@@ -1,5 +1,9 @@
 package com.readest.multitts.reader
 
+import com.readest.multitts.dict.HuffCdic
+import com.readest.multitts.dict.MobiDictionary
+import com.readest.multitts.dict.PalmDoc
+import com.readest.multitts.dict.PalmFile
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.Charset
@@ -17,6 +21,7 @@ object MobiParser {
 
     private const val COMPRESSION_NONE = 1
     private const val COMPRESSION_PALMDOC = 2
+    private const val COMPRESSION_HUFFCDIC = 17480
 
     fun parse(file: File): MobiDoc? {
         return try {
@@ -50,6 +55,9 @@ object MobiParser {
 
             var charset: Charset = Charsets.UTF_8
             var title: String? = null
+            var extraFlags = 0
+            var huffRecord = 0
+            var huffCount = 0
 
             if (header.size > 32 && String(header, 16, 4, Charsets.US_ASCII) == "MOBI") {
                 val encoding = readInt(header, 16 + 12)
@@ -65,15 +73,33 @@ object MobiParser {
                 ) {
                     title = String(header, fullNameOffset, fullNameLength, charset).trim()
                 }
+
+                val mobiHeaderLength = readInt(header, 16 + 4)
+                // Only present on newer headers; older files simply have no trailers.
+                if (mobiHeaderLength >= 0xE4 && header.size >= 16 + 0xE6) {
+                    extraFlags = readShort(header, 16 + 0xE2)
+                }
+                huffRecord = readInt(header, 16 + 0x60)
+                huffCount = readInt(header, 16 + 0x64)
             }
+
+            // HUFF/CDIC needs the whole table before any record can be read.
+            val huffman = if (compression == COMPRESSION_HUFFCDIC) {
+                PalmFile(file).use { palm -> HuffCdic.load(palm, huffRecord, huffCount) }
+                    ?: return null
+            } else null
 
             val out = ByteArrayOutputStream()
             for (i in 1..textRecordCount) {
-                val data = record(i) ?: continue
+                val raw = record(i) ?: continue
+                // Text records can end in bookkeeping bytes that are not text;
+                // decompressing them corrupts the tail of every single record.
+                val data = MobiDictionary.trimTrailing(raw, extraFlags)
                 when (compression) {
                     COMPRESSION_NONE -> out.write(data)
-                    COMPRESSION_PALMDOC -> out.write(decompressPalmDoc(data))
-                    else -> return null // HUFF/CDIC (compression 17480) is not supported
+                    COMPRESSION_PALMDOC -> out.write(PalmDoc.decompress(data))
+                    COMPRESSION_HUFFCDIC -> out.write(huffman!!.decompress(data))
+                    else -> return null
                 }
             }
 
@@ -84,58 +110,6 @@ object MobiParser {
             e.printStackTrace()
             null
         }
-    }
-
-    /**
-     * PalmDOC LZ77 variant: literals, 2-byte back-references, and space+char pairs.
-     * Writes into a plain growable array so overlapping back-references can be copied
-     * byte by byte without re-snapshotting the output.
-     */
-    private fun decompressPalmDoc(data: ByteArray): ByteArray {
-        var out = ByteArray(data.size * 4 + 16)
-        var size = 0
-
-        fun put(value: Int) {
-            if (size == out.size) out = out.copyOf(out.size * 2)
-            out[size++] = value.toByte()
-        }
-
-        var i = 0
-        while (i < data.size) {
-            val b = data[i].toInt() and 0xFF
-            i++
-            when {
-                b == 0 -> put(b)
-                b in 1..8 -> {
-                    var n = 0
-                    while (n < b && i < data.size) {
-                        put(data[i].toInt())
-                        i++; n++
-                    }
-                }
-                b in 0x09..0x7F -> put(b)
-                b in 0x80..0xBF -> {
-                    if (i >= data.size) break
-                    val b2 = data[i].toInt() and 0xFF
-                    i++
-                    val pair = ((b shl 8) or b2) and 0x3FFF
-                    val distance = pair shr 3
-                    val length = (pair and 0x07) + 3
-                    val src = size - distance
-                    if (distance <= 0 || src < 0) continue
-                    for (n in 0 until length) {
-                        if (src + n >= size) break
-                        put(out[src + n].toInt())
-                    }
-                }
-                else -> {
-                    // 0xC0..0xFF: space followed by the low 7 bits
-                    put(' '.code)
-                    put(b xor 0x80)
-                }
-            }
-        }
-        return out.copyOf(size)
     }
 
     private fun readShort(b: ByteArray, offset: Int): Int =
