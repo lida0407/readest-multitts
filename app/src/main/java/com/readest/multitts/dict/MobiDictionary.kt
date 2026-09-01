@@ -183,7 +183,7 @@ class MobiDictionary private constructor(
 
     companion object {
         private const val TAG = "MobiDictionary"
-        private const val INDEX_VERSION = 2
+        private const val INDEX_VERSION = 3
 
         fun normalize(word: String): String =
             word.trim().lowercase(Locale.ROOT).replace("­", "")
@@ -214,15 +214,27 @@ class MobiDictionary private constructor(
                 }
 
                 onProgress("Reading headwords…")
-                val entries = IndxParser.read(palm, orthIndex)
-                if (entries.isEmpty()) {
+
+                // Converted to compact rows as they arrive: the parsed form
+                // carries a tag map per entry, and a large dictionary has enough
+                // entries for that to exhaust the heap on its own.
+                data class Row(val word: String, val offset: Long, val length: Int)
+
+                val rowsRaw = ArrayList<Row>(4096)
+                IndxParser.read(palm, orthIndex) { entry ->
+                    val start = entry.tags[1]?.firstOrNull()
+                    if (start != null) {
+                        rowsRaw.add(Row(entry.text, start, entry.tags[2]?.firstOrNull()?.toInt() ?: 0))
+                    }
+                }
+                if (rowsRaw.isEmpty()) {
                     throw DictionaryException("The dictionary index is empty or in a format this app can't read.")
                 }
 
                 val info = textInfo(palm, header)
                     ?: throw DictionaryException("This dictionary uses a compression this app can't read.")
 
-                onProgress("Measuring ${entries.size} entries…")
+                onProgress("Measuring ${rowsRaw.size} entries…")
 
                 // One pass over the text records records where each one lands in the
                 // decompressed stream, so a lookup later only expands what it needs.
@@ -241,17 +253,8 @@ class MobiDictionary private constructor(
                 offsets[info.textRecordCount] = running
 
                 onProgress("Sorting…")
-                data class Row(val word: String, val offset: Long, val length: Int)
-
-                val rows = entries.mapNotNull { entry ->
-                    val start = entry.tags[1]?.firstOrNull() ?: return@mapNotNull null
-                    val length = entry.tags[2]?.firstOrNull()?.toInt() ?: 0
-                    Row(entry.text, start, length)
-                }.sortedBy { normalize(it.word) }
-
-                if (rows.isEmpty()) {
-                    throw DictionaryException("The index has no usable headword positions.")
-                }
+                rowsRaw.sortBy { normalize(it.word) }
+                val rows = rowsRaw
 
                 onProgress("Writing index…")
                 val positions = IntArray(rows.size)

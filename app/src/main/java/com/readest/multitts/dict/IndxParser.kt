@@ -16,9 +16,39 @@ object IndxParser {
 
     private data class Tagx(val tag: Int, val valuesPerEntry: Int, val mask: Int, val endFlag: Int)
 
+    /**
+     * Some dictionaries store headwords as 2-byte ordinals into a lookup table
+     * rather than as text, so the bytes mean nothing without it. Signalled by
+     * text encoding 65002 and an entry count in the ORDT descriptor.
+     */
+    private class Ordt(val map: IntArray) {
+        fun decode(data: ByteArray, start: Int, byteLength: Int): String {
+            val sb = StringBuilder(byteLength / 2)
+            var i = start
+            val end = start + byteLength
+            while (i + 1 < end && i + 1 < data.size) {
+                val ordinal = PalmFile.u16(data, i)
+                sb.append(if (ordinal < map.size) map[ordinal].toChar() else '?')
+                i += 2
+            }
+            return sb.toString()
+        }
+    }
+
     fun read(palm: PalmFile, indxRecord: Int): List<Entry> {
-        val header = palm.record(indxRecord) ?: return emptyList()
-        if (header.size < 56 || String(header, 0, 4, Charsets.US_ASCII) != "INDX") return emptyList()
+        val all = ArrayList<Entry>()
+        read(palm, indxRecord) { all.add(it) }
+        return all
+    }
+
+    /**
+     * Streaming read. A large dictionary has hundreds of thousands of entries and
+     * each one carries a map of boxed tag values; holding them all at once is
+     * what pushes a rebuild into OutOfMemoryError on a real device.
+     */
+    fun read(palm: PalmFile, indxRecord: Int, onEntry: (Entry) -> Unit) {
+        val header = palm.record(indxRecord) ?: return
+        if (header.size < 56 || String(header, 0, 4, Charsets.US_ASCII) != "INDX") return
 
         val headerLength = PalmFile.i32(header, 4)
         val dataRecordCount = PalmFile.i32(header, 24)
@@ -28,16 +58,32 @@ object IndxParser {
             else -> Charsets.UTF_8
         }
 
-        val tagx = readTagx(header, headerLength) ?: return emptyList()
+        // The ORDT descriptor sits past the fields the format documents, and
+        // carries the real offset of TAGX along with the ordinal table.
+        val ordtEntries = if (header.size > 184) PalmFile.i32(header, 168) else 0
+        val ordt2Offset = if (header.size > 184) PalmFile.i32(header, 176) else 0
+        val tagxOffset = if (header.size > 184) PalmFile.i32(header, 180) else 0
+
+        val ordt = if (ordtEntries > 0 && ordt2Offset > 0) readOrdt(header, ordt2Offset, ordtEntries) else null
+
+        val tagx = readTagx(header, if (tagxOffset > 0) tagxOffset else headerLength)
+            ?: return
         val controlByteCount = tagx.second
         val tags = tagx.first
 
-        val entries = ArrayList<Entry>()
         for (i in 0 until dataRecordCount) {
             val record = palm.record(indxRecord + 1 + i) ?: continue
-            readDataRecord(record, tags, controlByteCount, charset, entries)
+            readDataRecord(record, tags, controlByteCount, charset, ordt, onEntry)
         }
-        return entries
+    }
+
+    /** The table is a run of uint16 code points, just past the "ORDT" tag. */
+    private fun readOrdt(header: ByteArray, offset: Int, count: Int): Ordt? {
+        val base = if (offset + 4 <= header.size &&
+            String(header, offset, 4, Charsets.US_ASCII) == "ORDT"
+        ) offset + 4 else offset
+        if (base + count * 2 > header.size) return null
+        return Ordt(IntArray(count) { PalmFile.u16(header, base + it * 2) })
     }
 
     private fun readTagx(header: ByteArray, headerLength: Int): Pair<List<Tagx>, Int>? {
@@ -68,7 +114,8 @@ object IndxParser {
         tagx: List<Tagx>,
         controlByteCount: Int,
         charset: Charset,
-        into: MutableList<Entry>
+        ordt: Ordt?,
+        onEntry: (Entry) -> Unit
     ) {
         if (record.size < 28 || String(record, 0, 4, Charsets.US_ASCII) != "INDX") return
         val idxtStart = PalmFile.i32(record, 20)
@@ -88,12 +135,13 @@ object IndxParser {
             val textLength = record[offset].toInt() and 0xFF
             val textStart = offset + 1
             if (textStart + textLength > record.size) continue
-            val text = String(record, textStart, textLength, charset)
+            val text = ordt?.decode(record, textStart, textLength)
+                ?: String(record, textStart, textLength, charset)
 
             val tagStart = textStart + textLength
             val tagEnd = minOf(if (next > tagStart) next else record.size, record.size)
             val tags = readTagValues(record, tagStart, tagEnd, tagx, controlByteCount)
-            into.add(Entry(text, tags))
+            onEntry(Entry(text, tags))
         }
     }
 

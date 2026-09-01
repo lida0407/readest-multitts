@@ -133,11 +133,40 @@ class DictionaryStore(private val context: Context) {
         return hits
     }
 
+    // Lookups run on their own thread per word sheet, so two can arrive at once
+    // and both decide the index needs rebuilding. Two concurrent rebuilds of a
+    // large dictionary exhaust the heap and corrupt the file they share.
+    @Synchronized
     private fun handle(id: String): MobiDictionary? {
         open[id]?.let { return it }
-        val dict = MobiDictionary.open(bookFile(id), indexFile(id)) ?: return null
-        open[id] = dict
-        return dict
+        val book = bookFile(id)
+        val index = indexFile(id)
+
+        MobiDictionary.open(book, index)?.let {
+            open[id] = it
+            return it
+        }
+
+        // The index is missing or was written by an older build whose headword
+        // decoding was wrong. Rebuild rather than leave the dictionary silently
+        // answering nothing for every word.
+        if (!book.exists()) return null
+        return try {
+            Log.i(TAG, "Rebuilding index for $id")
+            val entries = MobiDictionary.buildIndex(book, index) {}
+            val rebuilt = MobiDictionary.open(book, index)
+            if (rebuilt != null) {
+                open[id] = rebuilt
+                save(list().map { if (it.id == id) it.copy(entries = entries) else it })
+            }
+            rebuilt
+        } catch (e: Throwable) {
+            // Throwable, not Exception: indexing a large dictionary can run the
+            // heap out, and an uncaught Error kills the lookup thread silently.
+            Log.w(TAG, "Could not rebuild index for $id", e)
+            index.delete()
+            null
+        }
     }
 
     private fun closeOne(id: String) {

@@ -99,6 +99,23 @@ class MobiDictionaryTest {
     }
 
     @Test
+    fun `ordinal-encoded headwords decode through the ORDT table`() {
+        // Real Kindle dictionaries store headwords as 2-byte ordinals into an
+        // ORDT table (text encoding 65002) rather than as text. Read as bytes
+        // they come out as mangled letters interleaved with NULs, the index
+        // still looks well-formed, and every single lookup misses.
+        openIndexed("test-dict-ordt.mobi").use { dict ->
+            assertEquals(10, dict.entryCount)
+            val apple = dict.lookup("apple")
+            assertNotNull("ORDT headwords did not decode", apple)
+            assertEquals("apple", apple!!.headword)
+            assertTrue(apple.html.contains("a round fruit"))
+            assertNotNull(dict.lookup("jungle"))
+            assertNull(dict.lookup("zebra"))
+        }
+    }
+
+    @Test
     fun `trailing record bytes are stripped before decompression`() {
         // flags bit 0 means the last byte's low 2 bits count trailing filler.
         val data = byteArrayOf(1, 2, 3, 4, 5, 0x02)
