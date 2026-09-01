@@ -15,6 +15,9 @@ VERSION=$(grep versionName app/build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/
 NOTES="${1:-Release v$VERSION}"
 APK="Readest-MultiTTS-v${VERSION}.apk"
 
+# The voice models are not in git; without them the APK builds but cannot speak.
+./fetch-models.sh
+
 echo "Building v$VERSION…"
 ./gradlew assembleDebug --no-daemon -q
 cp app/build/outputs/apk/debug/app-debug.apk "$APK"

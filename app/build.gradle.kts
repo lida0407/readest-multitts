@@ -11,8 +11,13 @@ android {
         applicationId = "com.readest.multitts"
         minSdk = 24
         targetSdk = 34
-        versionCode = 15
-        versionName = "1.15.0"
+        ndk {
+            // 64-bit only. Adding armeabi-v7a costs another 16MB of native code
+            // for a share of devices that is now vanishingly small.
+            abiFilters += listOf("arm64-v8a")
+        }
+        versionCode = 16
+        versionName = "1.16.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,6 +50,18 @@ android {
         viewBinding = true
         buildConfig = true
     }
+
+    // The bundled voice models must stay uncompressed: sherpa-onnx maps them
+    // straight out of the APK rather than reading them through a stream.
+    androidResources {
+        noCompress += listOf("onnx", "fst", "dict", "so")
+    }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
 }
 
 dependencies {
@@ -71,6 +88,8 @@ dependencies {
 
     // Testing
     testImplementation("junit:junit:4.13.2")
+    // Offline neural TTS (Apache-2.0). Local AAR: k2-fsa publishes no Maven artifact.
+    implementation(files("libs/sherpa-onnx.aar"))
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }

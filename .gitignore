@@ -13,3 +13,8 @@ app/build/
 local.properties
 *.jks
 *.keystore
+
+# Bundled TTS engine and voice models — fetched by ./fetch-models.sh
+app/libs/*.aar
+app/src/main/assets/tts/
+.model-cache/

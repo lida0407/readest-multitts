@@ -37,6 +37,7 @@ import com.readest.multitts.tts.TTSEngineController
 import com.readest.multitts.tts.TTSLocalAudioCache
 import com.readest.multitts.tts.TTSPreSynthesizer
 import com.readest.multitts.tts.TtsEngine
+import com.readest.multitts.tts.bundled.BundledVoices
 import com.readest.multitts.ui.BooksAdapter
 import com.readest.multitts.ui.CacheManagerBottomSheet
 import com.readest.multitts.ui.ClickFeedback
@@ -267,7 +268,13 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         val multiPkg = MultiTTSManager.getInstalledMultiTTSPackage(this)
         val isMultiInstalled = multiPkg != null
 
-        val statusText = if (isMultiInstalled) "MultiTTS ✓" else "Get MultiTTS"
+        // The bundled voices mean a fresh install is never mute, so MultiTTS is
+        // presented as an upgrade rather than something the app is missing.
+        val statusText = when {
+            isMultiInstalled -> "MultiTTS ✓"
+            BundledVoices.ALL.isNotEmpty() -> "Voices ✓"
+            else -> "Get MultiTTS"
+        }
         binding.chipMultiTtsStatus.text = statusText
         binding.btnHeroMultiTts.text = statusText
 
@@ -284,15 +291,19 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             binding.tvTtsSpeed.text = String.format(Locale.US, "%.1fx", ttsController.currentRate)
         }
 
-        val engineToUse = savedEngine ?: multiPkg
+        // Preference order: what the reader last chose, then MultiTTS if they
+        // have it, then the voices shipped inside this APK, then whatever the
+        // phone provides. Only the last of those can be missing on a new device.
+        val engineToUse = savedEngine ?: multiPkg ?: packageName
         ttsController.initEngine(engineToUse) { ready ->
             if (ready) {
                 applySavedVoice()
             } else if (engineToUse != multiPkg) {
                 // The remembered engine is gone (uninstalled); fall back instead of staying mute
                 prefs.edit().remove("tts_engine").apply()
-                ttsController.initEngine(multiPkg) { fallbackReady ->
+                ttsController.initEngine(multiPkg ?: packageName) { fallbackReady ->
                     if (fallbackReady) applySavedVoice()
+                    else ttsController.initEngine(null) { applySavedVoice() }
                 }
             }
         }
