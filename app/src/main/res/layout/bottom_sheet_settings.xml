@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/surface"
+    android:orientation="vertical"
+    android:paddingTop="8dp">
+
+    <!-- Drag handle -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="14dp"
+        android:background="@drawable/bg_drag_handle" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings · 设置"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvSettingsSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Everything in one place"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/chipSettingsEngine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chip_green_soft"
+            android:paddingStart="8dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="4dp"
+            android:text="MultiTTS ✓"
+            android:textColor="@color/green"
+            android:textSize="10.5sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="26dp">
+
+            <!-- narration -->
+            <TextView
+                style="@style/Readest.SettingsGroup"
+                android:text="NARRATION · 朗读" />
+
+            <include
+                android:id="@+id/rowVoice"
+                layout="@layout/item_settings_row" />
+
+            <include
+                android:id="@+id/rowEngine"
+                layout="@layout/item_settings_row" />
+
+            <include
+                android:id="@+id/rowCache"
+                layout="@layout/item_settings_row" />
+
+            <!-- look-ups -->
+            <TextView
+                style="@style/Readest.SettingsGroup"
+                android:text="LOOK-UPS · 查词" />
+
+            <include
+                android:id="@+id/rowDictionaries"
+                layout="@layout/item_settings_row" />
+
+            <include
+                android:id="@+id/rowTranslate"
+                layout="@layout/item_settings_row" />
+
+            <!-- reading -->
+            <TextView
+                style="@style/Readest.SettingsGroup"
+                android:text="READING · 阅读" />
+
+            <include
+                android:id="@+id/rowDisplay"
+                layout="@layout/item_settings_row" />
+
+            <include
+                android:id="@+id/rowShelfOrder"
+                layout="@layout/item_settings_row" />
+
+            <!-- about -->
+            <TextView
+                style="@style/Readest.SettingsGroup"
+                android:text="ABOUT · 关于" />
+
+            <include
+                android:id="@+id/rowUpdate"
+                layout="@layout/item_settings_row" />
+
+            <include
+                android:id="@+id/rowReleases"
+                layout="@layout/item_settings_row" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

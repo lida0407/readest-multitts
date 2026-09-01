@@ -42,4 +42,17 @@
         <item name="cornerSizeTopLeft">26dp</item>
         <item name="cornerSizeTopRight">26dp</item>
     </style>
+    <!-- Section label above a group of settings rows -->
+    <style name="Readest.SettingsGroup" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">22dp</item>
+        <item name="android:paddingEnd">22dp</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">10.5sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

@@ -44,6 +44,7 @@ import com.readest.multitts.ui.ClickFeedback
 import com.readest.multitts.ui.ContentsBottomSheet
 import com.readest.multitts.ui.MultiTTSDownloadDialog
 import com.readest.multitts.ui.ReaderSettingsBottomSheet
+import com.readest.multitts.ui.SettingsBottomSheet
 import com.readest.multitts.dict.DictionaryStore
 import com.readest.multitts.dict.Translator
 import com.readest.multitts.ui.DictionaryManagerBottomSheet
@@ -355,6 +356,14 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
 
         binding.btnSortBooks.setOnClickListener {
             showSortMenu()
+        }
+
+        binding.btnSettings.setOnClickListener {
+            showSettingsSheet()
+        }
+
+        binding.btnOpenSettings.setOnClickListener {
+            showSettingsSheet()
         }
 
         binding.btnCheckUpdate.text = versionChipLabel()
@@ -836,6 +845,105 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         }.start()
     }
 
+    // ----------------------------------------------------------- settings hub
+
+    /**
+     * The one entry point to every setting.
+     *
+     * Rows open the existing panels rather than duplicating their controls, so
+     * a setting has exactly one implementation and one source of truth.
+     */
+    private fun showSettingsSheet() {
+        val multiPkg = MultiTTSManager.getInstalledMultiTTSPackage(this)
+        val engines = MultiTTSManager.getAvailableTTSEngines(this, null)
+        val engineLabel = engines.firstOrNull { it.packageName == ttsController.currentEnginePackage }?.label
+            ?: when {
+                multiPkg != null -> "MultiTTS"
+                VoiceBundle.HAS_BUNDLED_VOICES -> "Bundled voices"
+                else -> "System speech engine"
+            }
+
+        val voiceId = ttsController.currentVoiceId
+        val voiceLabel = ttsController.getVoices().firstOrNull { it.id == voiceId }?.name
+            ?: voiceId
+            ?: "Default voice"
+
+        val dictionaries = dictionaryStore.list()
+        val dictLabel = when {
+            dictionaries.isEmpty() -> "None yet — add a MOBI or PRC file"
+            else -> dictionaries.joinToString(" · ") { it.name }
+        }
+
+        val targetCode = prefs.getString("translate_target", null) ?: Translator.deviceLanguage()
+        val targetLabel = Translator.COMMON_TARGETS.firstOrNull { it.first == targetCode }?.second ?: targetCode
+
+        val themeLabel = currentTheme.removePrefix("theme-").replaceFirstChar { it.uppercase() }
+        val modeLabel = if (currentReadingMode == "scroll") "scroll" else "page by page"
+
+        SettingsBottomSheet(
+            summary = SettingsBottomSheet.Summary(
+                engineLabel = engineLabel,
+                engineInstalled = multiPkg != null,
+                voice = voiceLabel,
+                rate = String.format(Locale.US, "%.1fx", ttsController.currentRate),
+                cache = "${audioCache.getFormattedCacheSize()} of offline audio",
+                dictionaries = dictLabel,
+                translateTarget = targetLabel,
+                display = "$themeLabel · ${currentFontSize}px · $modeLabel",
+                shelfOrder = sortLabel().removeSuffix(" ▾"),
+                version = versionLabel()
+            ),
+            onOpenVoice = { showTtsBottomSheet() },
+            onOpenEngine = { MultiTTSDownloadDialog(this) { setupTTS() }.show() },
+            onOpenCache = { showCacheManager() },
+            onOpenDictionaries = { showDictionaryManager() },
+            onOpenTranslate = { showTranslateTargetPicker() },
+            onOpenDisplay = { showReaderSettingsBottomSheet() },
+            onOpenShelfOrder = { showSortChooser() },
+            onCheckUpdate = { checkForUpdate() },
+            onOpenReleases = { openReleasesPage() }
+        ).show(supportFragmentManager, "settings")
+    }
+
+    /** Sort is reachable from the hub, where the shelf chip may not be on screen. */
+    private fun showSortChooser() {
+        val options = listOf(
+            SORT_LAST_READ to "Last read · 最近阅读",
+            SORT_TITLE to "Title A–Z · 书名",
+            SORT_ADDED to "Recently added · 最近添加"
+        )
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Shelf order")
+            .setSingleChoiceItems(
+                options.map { it.second }.toTypedArray(),
+                options.indexOfFirst { it.first == librarySort }.coerceAtLeast(0)
+            ) { dialog, which ->
+                librarySort = options[which].first
+                prefs.edit().putString("library_sort", librarySort).apply()
+                refreshLibraryView()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    /** The language a long-pressed word is translated into. */
+    private fun showTranslateTargetPicker() {
+        val current = prefs.getString("translate_target", null) ?: Translator.deviceLanguage()
+        val targets = Translator.COMMON_TARGETS
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Translate words into")
+            .setSingleChoiceItems(
+                targets.map { it.second }.toTypedArray(),
+                targets.indexOfFirst { it.first == current }
+            ) { dialog, which ->
+                prefs.edit().putString("translate_target", targets[which].first).apply()
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
     private fun showCacheManager() {
         val sheet = CacheManagerBottomSheet(
             audioCache = audioCache,
@@ -1146,10 +1254,12 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
 
     /** Asks GitHub for the latest release and offers to install it. */
     /** Shows the track too, so it is obvious which build a phone is running. */
-    private fun versionChipLabel(): String {
+    private fun versionLabel(): String {
         val track = if (BuildConfig.RELEASE_TRACK == "bundled") " · voices" else ""
-        return "v${BuildConfig.VERSION_NAME}$track · tap to check for update"
+        return "v${BuildConfig.VERSION_NAME}$track"
     }
+
+    private fun versionChipLabel(): String = "${versionLabel()} · tap to check for update"
 
     private fun checkForUpdate() {
         if (updateCheckRunning) return
