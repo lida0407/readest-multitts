@@ -25,8 +25,11 @@ object BundledVoices {
         val tokensFile: String,
         /** Matcha splits synthesis in two: an acoustic model and a vocoder. */
         val vocoderFile: String? = null,
-        /** Piper voices need espeak-ng data; the Chinese models need a lexicon. */
-        val dataDir: String? = null,
+        /**
+         * espeak-ng pronunciation data, shared by every Piper voice. Kept out of
+         * the per-voice folders so it is stored and extracted once, not per voice.
+         */
+        val sharedDataDir: String? = null,
         val lexicon: String? = null,
         val dictDir: String? = null,
         val ruleFsts: List<String> = emptyList(),
@@ -34,33 +37,35 @@ object BundledVoices {
         val licence: String
     )
 
+    const val ESPEAK_DIR = "tts/espeak-ng-data"
+
     val ENGLISH = Voice(
         id = "bundled_en_us_ryan",
         displayName = "English · Ryan (bundled)",
         locale = Locale.US,
         kind = Kind.VITS,
-        assetDir = "tts/vits-piper-en_US-ryan-medium",
-        modelFile = "en_US-ryan-medium.onnx",
+        assetDir = "tts/en_US-ryan",
+        modelFile = "model.onnx",
         tokensFile = "tokens.txt",
-        dataDir = "espeak-ng-data",
+        sharedDataDir = ESPEAK_DIR,
         licence = "Piper en_US-ryan (MIT)"
     )
 
-    // Matcha at 22.05 kHz rather than the AIShell-3 VITS model, which synthesises
-    // at 8 kHz — fine for a prompt, far too thin for hours of listening.
+    // Piper rather than Matcha: same 22.05 kHz, a fifth of the size, and it
+    // phonemises through the shared espeak data instead of its own 14MB
+    // segmentation dictionary.
     val CHINESE = Voice(
-        id = "bundled_zh_cn_baker",
-        displayName = "中文 · Baker (bundled)",
+        id = "bundled_zh_cn_xiao_ya",
+        displayName = "中文 · 小雅 (bundled)",
         locale = Locale.SIMPLIFIED_CHINESE,
-        kind = Kind.MATCHA,
-        assetDir = "tts/matcha-icefall-zh-baker",
-        modelFile = "model-steps-3.onnx",
+        kind = Kind.VITS,
+        assetDir = "tts/zh_CN-xiao_ya",
+        modelFile = "model.onnx",
         tokensFile = "tokens.txt",
-        vocoderFile = "hifigan_v2.onnx",
+        sharedDataDir = ESPEAK_DIR,
         lexicon = "lexicon.txt",
-        dictDir = "dict",
         ruleFsts = listOf("phone.fst", "date.fst", "number.fst"),
-        licence = "icefall Matcha Baker + HiFiGAN (Apache-2.0)"
+        licence = "Piper zh_CN-xiao_ya (MIT)"
     )
 
     val ALL = listOf(ENGLISH, CHINESE)

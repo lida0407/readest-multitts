@@ -81,13 +81,16 @@ object SherpaTts {
         release()
         val dir = ModelAssets.ensure(context, voice) ?: return null
         fun at(name: String) = File(dir, name).absolutePath
+        val espeak = voice.sharedDataDir
+            ?.let { ModelAssets.dirFor(context, it).absolutePath }
+            ?: ""
         return try {
             val vits = if (voice.kind == BundledVoices.Kind.VITS) {
                 OfflineTtsVitsModelConfig(
                     model = at(voice.modelFile),
                     lexicon = voice.lexicon?.let { at(it) } ?: "",
                     tokens = at(voice.tokensFile),
-                    dataDir = voice.dataDir?.let { at(it) } ?: "",
+                    dataDir = espeak,
                     dictDir = voice.dictDir?.let { at(it) } ?: "",
                     noiseScale = 0.667f,
                     noiseScaleW = 0.8f,
@@ -103,7 +106,7 @@ object SherpaTts {
                     vocoder = voice.vocoderFile?.let { at(it) } ?: "",
                     lexicon = voice.lexicon?.let { at(it) } ?: "",
                     tokens = at(voice.tokensFile),
-                    dataDir = voice.dataDir?.let { at(it) } ?: "",
+                    dataDir = espeak,
                     dictDir = voice.dictDir?.let { at(it) } ?: "",
                     noiseScale = 1.0f,
                     lengthScale = 1.0f

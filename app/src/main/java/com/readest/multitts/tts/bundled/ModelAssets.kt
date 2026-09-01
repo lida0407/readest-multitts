@@ -23,20 +23,32 @@ object ModelAssets {
      */
     @Synchronized
     fun ensure(context: Context, voice: BundledVoices.Voice, onProgress: (String) -> Unit = {}): File? {
-        val target = File(context.filesDir, voice.assetDir)
+        // The shared pronunciation data is extracted once and reused, so adding a
+        // second Piper voice costs only its model.
+        voice.sharedDataDir?.let { shared ->
+            if (extract(context, shared, onProgress) == null) return null
+        }
+        return extract(context, voice.assetDir, onProgress)
+    }
+
+    /** Where [assetDir] was unpacked, once it has been. */
+    fun dirFor(context: Context, assetDir: String) = File(context.filesDir, assetDir)
+
+    private fun extract(context: Context, assetDir: String, onProgress: (String) -> Unit): File? {
+        val target = File(context.filesDir, assetDir)
         val marker = File(target, ".complete")
         if (marker.exists()) return target
 
         return try {
             if (target.exists()) target.deleteRecursively()
             target.mkdirs()
-            onProgress("Preparing ${voice.displayName}…")
-            copyTree(context, voice.assetDir, target)
-            marker.writeText(voice.id)
-            Log.i(TAG, "Extracted ${voice.id} to $target")
+            onProgress("Preparing voice data…")
+            copyTree(context, assetDir, target)
+            marker.writeText(assetDir)
+            Log.i(TAG, "Extracted $assetDir to $target")
             target
         } catch (e: Exception) {
-            Log.e(TAG, "Could not extract ${voice.id}", e)
+            Log.e(TAG, "Could not extract $assetDir", e)
             target.deleteRecursively()
             null
         }

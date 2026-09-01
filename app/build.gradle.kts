@@ -16,8 +16,8 @@ android {
             // for a share of devices that is now vanishingly small.
             abiFilters += listOf("arm64-v8a")
         }
-        versionCode = 16
-        versionName = "1.16.0"
+        versionCode = 17
+        versionName = "1.17.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -49,12 +49,6 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
-    }
-
-    // The bundled voice models must stay uncompressed: sherpa-onnx maps them
-    // straight out of the APK rather than reading them through a stream.
-    androidResources {
-        noCompress += listOf("onnx", "fst", "dict", "so")
     }
 
     packaging {

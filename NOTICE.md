@@ -12,11 +12,16 @@ Bundled as `app/libs/sherpa-onnx.aar`, providing on-device neural speech synthes
 https://github.com/rhasspy/piper
 English narration voice.
 
-**icefall Matcha-TTS, Baker corpus** — Apache License 2.0
-https://github.com/k2-fsa/icefall
-Chinese narration voice, paired with **HiFi-GAN v2** (Apache License 2.0) as vocoder.
+**Piper zh_CN-xiao_ya (medium, int8)** — MIT License
+https://github.com/rhasspy/piper
+Chinese narration voice.
 
-Both voice models are redistributed under their own licences, unmodified.
+**espeak-ng** data — GPL-3.0
+https://github.com/espeak-ng/espeak-ng
+Pronunciation data both voices phonemise through, shipped pruned to English and
+Mandarin. Unmodified other than the removal of unused languages' dictionaries.
+
+The voice models are redistributed under their own licences, unmodified.
 
 ## Not bundled
 
