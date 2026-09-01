@@ -52,3 +52,26 @@ git add .github && git commit -m "Add APK build workflow" && git push
 ```
 
 After that every push builds an APK automatically.
+
+## Release tracks
+
+Two builds come out of this repo and they never offer each other as an update.
+
+| Track | Flavour | Size | Voices |
+|---|---|---|---|
+| `standard` | `assembleStandardDebug` | ~20MB | MultiTTS, or whatever engine the phone has |
+| `bundled` | `assembleBundledDebug` | ~73MB | Ships its own offline English and Chinese voices |
+
+Tags carry the track: `v1.2.3` for standard, `v1.2.3-bundled` for the other, and
+the APK assets are named to match. The in-app update check filters on both, so a
+phone on one track never downloads the other's build — which would fail to
+install with nothing but a parser error to explain it.
+
+```bash
+./release.sh standard "what changed"   # publishes v1.2.3
+./release.sh bundled  "what changed"   # publishes v1.2.3-bundled
+./release.sh both     "what changed"
+```
+
+The bundled track needs `./fetch-models.sh` first; `release.sh` runs it. CI only
+ever builds `standard`, since the voice models deliberately do not live in git.

@@ -37,7 +37,7 @@ import com.readest.multitts.tts.TTSEngineController
 import com.readest.multitts.tts.TTSLocalAudioCache
 import com.readest.multitts.tts.TTSPreSynthesizer
 import com.readest.multitts.tts.TtsEngine
-import com.readest.multitts.tts.bundled.BundledVoices
+import com.readest.multitts.tts.VoiceBundle
 import com.readest.multitts.ui.BooksAdapter
 import com.readest.multitts.ui.CacheManagerBottomSheet
 import com.readest.multitts.ui.ClickFeedback
@@ -272,7 +272,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         // presented as an upgrade rather than something the app is missing.
         val statusText = when {
             isMultiInstalled -> "MultiTTS ✓"
-            BundledVoices.ALL.isNotEmpty() -> "Voices ✓"
+            VoiceBundle.HAS_BUNDLED_VOICES -> "Voices ✓"
             else -> "Get MultiTTS"
         }
         binding.chipMultiTtsStatus.text = statusText
@@ -294,14 +294,14 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         // Preference order: what the reader last chose, then MultiTTS if they
         // have it, then the voices shipped inside this APK, then whatever the
         // phone provides. Only the last of those can be missing on a new device.
-        val engineToUse = savedEngine ?: multiPkg ?: packageName
+        val engineToUse = savedEngine ?: multiPkg ?: VoiceBundle.enginePackage(this)
         ttsController.initEngine(engineToUse) { ready ->
             if (ready) {
                 applySavedVoice()
             } else if (engineToUse != multiPkg) {
                 // The remembered engine is gone (uninstalled); fall back instead of staying mute
                 prefs.edit().remove("tts_engine").apply()
-                ttsController.initEngine(multiPkg ?: packageName) { fallbackReady ->
+                ttsController.initEngine(multiPkg ?: VoiceBundle.enginePackage(this)) { fallbackReady ->
                     if (fallbackReady) applySavedVoice()
                     else ttsController.initEngine(null) { applySavedVoice() }
                 }
@@ -357,7 +357,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             showSortMenu()
         }
 
-        binding.btnCheckUpdate.text = "v${BuildConfig.VERSION_NAME} · tap to check for update"
+        binding.btnCheckUpdate.text = versionChipLabel()
         binding.btnCheckUpdate.setOnClickListener {
             checkForUpdate()
         }
@@ -1145,6 +1145,12 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     private var updateCheckRunning = false
 
     /** Asks GitHub for the latest release and offers to install it. */
+    /** Shows the track too, so it is obvious which build a phone is running. */
+    private fun versionChipLabel(): String {
+        val track = if (BuildConfig.RELEASE_TRACK == "bundled") " · voices" else ""
+        return "v${BuildConfig.VERSION_NAME}$track · tap to check for update"
+    }
+
     private fun checkForUpdate() {
         if (updateCheckRunning) return
         updateCheckRunning = true
@@ -1152,10 +1158,10 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         binding.btnCheckUpdate.text = "Checking GitHub…"
 
         Thread {
-            val result = UpdateChecker.check(current)
+            val result = UpdateChecker.check(current, BuildConfig.RELEASE_TRACK)
             runOnUiThread {
                 updateCheckRunning = false
-                binding.btnCheckUpdate.text = "v$current · tap to check for update"
+                binding.btnCheckUpdate.text = versionChipLabel()
                 when (result) {
                     is UpdateChecker.Result.UpToDate ->
                         androidx.appcompat.app.AlertDialog.Builder(this)

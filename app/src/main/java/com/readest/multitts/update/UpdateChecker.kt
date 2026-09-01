@@ -1,6 +1,7 @@
 package com.readest.multitts.update
 
 import android.util.Log
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -14,10 +15,26 @@ import java.net.URL
 object UpdateChecker {
 
     private const val TAG = "UpdateChecker"
-    private const val LATEST_RELEASE_URL =
-        "https://api.github.com/repos/lida0407/readest-multitts/releases/latest"
+
+    // The whole list, not /releases/latest: two tracks are published from this
+    // repo, and /latest would happily hand the bundled-voices build to someone
+    // running the standard one, or the other way round.
+    private const val RELEASES_URL =
+        "https://api.github.com/repos/lida0407/readest-multitts/releases?per_page=30"
 
     const val RELEASES_PAGE = "https://github.com/lida0407/readest-multitts/releases"
+
+    /**
+     * Tags carry their track as a suffix — `v1.17.0` for standard, and
+     * `v1.17.0-bundled` for the build that ships its own voices.
+     */
+    private const val BUNDLED_SUFFIX = "-bundled"
+
+    private fun trackOf(tag: String): String =
+        if (tag.endsWith(BUNDLED_SUFFIX)) "bundled" else "standard"
+
+    private fun versionOf(tag: String): String =
+        tag.removePrefix("v").removeSuffix(BUNDLED_SUFFIX)
 
     data class Release(
         val version: String,
@@ -33,9 +50,9 @@ object UpdateChecker {
         data class Failed(val reason: String) : Result()
     }
 
-    fun check(currentVersion: String): Result {
+    fun check(currentVersion: String, track: String = "standard"): Result {
         return try {
-            val connection = (URL(LATEST_RELEASE_URL).openConnection() as HttpURLConnection).apply {
+            val connection = (URL(RELEASES_URL).openConnection() as HttpURLConnection).apply {
                 requestMethod = "GET"
                 setRequestProperty("Accept", "application/vnd.github+json")
                 setRequestProperty("User-Agent", "Readest++/$currentVersion")
@@ -50,35 +67,12 @@ object UpdateChecker {
             val body = connection.inputStream.bufferedReader().use { it.readText() }
             connection.disconnect()
 
-            val json = JSONObject(body)
-            val tag = json.optString("tag_name").removePrefix("v")
-            if (tag.isEmpty()) return Result.Failed("That release has no version tag.")
-
-            val assets = json.optJSONArray("assets")
-            var apkUrl: String? = null
-            var apkName: String? = null
-            if (assets != null) {
-                for (i in 0 until assets.length()) {
-                    val asset = assets.getJSONObject(i)
-                    val name = asset.optString("name")
-                    if (name.endsWith(".apk", ignoreCase = true)) {
-                        apkName = name
-                        apkUrl = asset.optString("browser_download_url")
-                        break
-                    }
-                }
-            }
-
-            val release = Release(
-                version = tag,
-                apkUrl = apkUrl,
-                apkName = apkName,
-                notes = json.optString("body").take(600),
-                publishedAt = json.optString("published_at").take(10)
-            )
+            val releaseInfo = selectRelease(body, track)
+                ?: return Result.Failed("No $track release has been published yet.")
+            val tag = releaseInfo.version
 
             if (isNewer(tag, currentVersion)) {
-                Result.Available(release, currentVersion)
+                Result.Available(releaseInfo, currentVersion)
             } else {
                 Result.UpToDate(currentVersion)
             }
@@ -86,6 +80,59 @@ object UpdateChecker {
             Log.w(TAG, "Update check failed", e)
             Result.Failed(e.message ?: "Could not reach GitHub.")
         }
+    }
+
+    /**
+     * Picks the newest release belonging to [track] from a GitHub releases list.
+     *
+     * Kept separate from the request so the choice can be tested: handing someone
+     * the wrong track's APK fails at install time with a bare parser error, long
+     * after the mistake was made.
+     */
+    fun selectRelease(body: String, track: String): Release? {
+        val releases = JSONArray(body)
+        var best: JSONObject? = null
+        var bestVersion = ""
+        for (i in 0 until releases.length()) {
+            val entry = releases.getJSONObject(i)
+            if (entry.optBoolean("draft")) continue
+            val tag = entry.optString("tag_name")
+            if (tag.isEmpty() || trackOf(tag) != track) continue
+            val version = versionOf(tag)
+            if (version.isEmpty()) continue
+            // Releases arrive newest-first by date, but a hotfix can be published
+            // after a larger version; compare the numbers rather than trust order.
+            if (best == null || isNewer(version, bestVersion)) {
+                best = entry
+                bestVersion = version
+            }
+        }
+        val release = best ?: return null
+
+        var apkUrl: String? = null
+        var apkName: String? = null
+        val assets = release.optJSONArray("assets")
+        if (assets != null) {
+            for (i in 0 until assets.length()) {
+                val asset = assets.getJSONObject(i)
+                val name = asset.optString("name")
+                if (!name.endsWith(".apk", ignoreCase = true)) continue
+                // A release can carry both tracks' APKs; take only this one's.
+                val assetIsBundled = name.contains("bundled", ignoreCase = true)
+                if (assetIsBundled != (track == "bundled")) continue
+                apkName = name
+                apkUrl = asset.optString("browser_download_url")
+                break
+            }
+        }
+
+        return Release(
+            version = bestVersion,
+            apkUrl = apkUrl,
+            apkName = apkName,
+            notes = release.optString("body").take(600),
+            publishedAt = release.optString("published_at").take(10)
+        )
     }
 
     /**

@@ -11,15 +11,34 @@ android {
         applicationId = "com.readest.multitts"
         minSdk = 24
         targetSdk = 34
-        ndk {
-            // 64-bit only. Adding armeabi-v7a costs another 16MB of native code
-            // for a share of devices that is now vanishingly small.
-            abiFilters += listOf("arm64-v8a")
-        }
         versionCode = 17
         versionName = "1.17.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // Two distributions from one codebase:
+    //   standard - lean, narrates through MultiTTS or the phone's own engine
+    //   bundled  - carries its own offline voices, for handing to someone who
+    //              has set nothing up
+    // They are separate release tracks, so neither ever offers the other's
+    // build as an update.
+    flavorDimensions += "voices"
+
+    productFlavors {
+        create("standard") {
+            dimension = "voices"
+            buildConfigField("String", "RELEASE_TRACK", "\"standard\"")
+        }
+        create("bundled") {
+            dimension = "voices"
+            buildConfigField("String", "RELEASE_TRACK", "\"bundled\"")
+            ndk {
+                // 64-bit only. Adding armeabi-v7a costs another 16MB of native
+                // code for a share of devices that is now vanishingly small.
+                abiFilters += listOf("arm64-v8a")
+            }
+        }
     }
 
     buildTypes {
@@ -82,8 +101,10 @@ dependencies {
 
     // Testing
     testImplementation("junit:junit:4.13.2")
+    // org.json is stubbed out in unit tests; the real one makes them runnable.
+    testImplementation("org.json:json:20240303")
     // Offline neural TTS (Apache-2.0). Local AAR: k2-fsa publishes no Maven artifact.
-    implementation(files("libs/sherpa-onnx.aar"))
+    "bundledImplementation"(files("libs/sherpa-onnx.aar"))
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
