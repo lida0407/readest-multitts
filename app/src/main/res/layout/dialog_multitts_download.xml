@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_dialog_light"
+    android:background="?attr/rdCardBg"
     android:orientation="vertical"
     android:padding="24dp">
 
@@ -12,7 +12,7 @@
         android:layout_height="48dp"
         android:layout_gravity="center_horizontal"
         android:src="@android:drawable/ic_dialog_info"
-        app:tint="@color/accent" />
+        app:tint="?attr/rdAccent" />
 
     <TextView
         android:id="@+id/tvDialogTitle"
@@ -21,7 +21,7 @@
         android:layout_marginTop="12dp"
         android:gravity="center"
         android:text="MultiTTS Engine Setup"
-        android:textColor="@color/text_primary"
+        android:textColor="?attr/rdTextPrimary"
         android:textSize="18sp"
         android:textStyle="bold" />
 
@@ -32,7 +32,7 @@
         android:layout_marginTop="8dp"
         android:lineSpacingMultiplier="1.2"
         android:text="MultiTTS provides hundreds of natural, offline voices (XiaoMi, Edge, Tencent, ByteDance, Acapela, Vocalizer). You can download MultiTTS APK or configure your system speech engine."
-        android:textColor="@color/text_secondary"
+        android:textColor="?attr/rdTextSecondary"
         android:textSize="13sp" />
 
     <!-- Download MultiTTS Button -->
@@ -41,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:backgroundTint="@color/accent"
+        android:backgroundTint="?attr/rdAccent"
         android:text="Download MultiTTS APK (GitHub/Mirror)"
         android:textAllCaps="false"
         app:cornerRadius="10dp"
@@ -67,9 +67,9 @@
         android:layout_marginTop="8dp"
         android:text="Open Android TTS Settings"
         android:textAllCaps="false"
-        android:textColor="@color/text_secondary"
+        android:textColor="?attr/rdTextSecondary"
         app:cornerRadius="10dp"
-        app:strokeColor="@color/surface_border" />
+        app:strokeColor="?attr/rdOutlineMuted" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnDialogDismiss"
@@ -78,6 +78,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="Close"
-        android:textColor="@color/text_tertiary" />
+        android:textColor="?attr/rdTextTertiary" />
 
 </LinearLayout>

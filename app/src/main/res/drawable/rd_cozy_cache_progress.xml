@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape>
+            <solid android:color="?attr/rdPanelSunk" />
+            <stroke android:width="2.5dp" android:color="?attr/rdOutline" />
+            <corners android:radius="99dp" />
+        </shape>
+    </item>
+    <item android:id="@android:id/progress" android:left="2.5dp" android:top="2.5dp" android:right="2.5dp" android:bottom="2.5dp">
+        <clip><shape><solid android:color="?attr/rdSuccessBright" /><corners android:radius="99dp" /></shape></clip>
+    </item>
+</layer-list>

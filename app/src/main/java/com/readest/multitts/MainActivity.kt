@@ -31,6 +31,9 @@ import com.readest.multitts.reader.DocumentManager
 import com.readest.multitts.reader.PdfParser
 import com.readest.multitts.reader.ReaderBridge
 import com.readest.multitts.reader.ReaderBridgeListener
+import com.readest.multitts.theme.AppTheme
+import com.readest.multitts.theme.GameState
+import com.readest.multitts.theme.Words
 import com.readest.multitts.tts.CacheCheckpointStore
 import com.readest.multitts.tts.MultiTTSManager
 import com.readest.multitts.tts.TTSEngineController
@@ -99,6 +102,14 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
 
     private val prefs by lazy { getSharedPreferences("reader_settings", MODE_PRIVATE) }
 
+    private lateinit var appTheme: AppTheme
+    private val words: Words get() = appTheme.words
+    private lateinit var game: GameState
+
+    /** Guards against paying XP twice for the same sentence on a re-render. */
+    private var lastScoredSentence = -1
+    private var lastScoredChapter = -1
+
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as AudioPlaybackService.LocalBinder
@@ -153,6 +164,11 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         // by the framework after process death, so drop any saved fragment state.
         savedInstanceState?.remove("android:support:fragments")
         savedInstanceState?.remove("android:fragments")
+        // Before super, before any inflation: the theme decides which drawables
+        // and typefaces the whole view tree resolves ?attr/ references to.
+        appTheme = AppTheme.current(this)
+        setTheme(appTheme.styleRes)
+        game = GameState(this)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -178,6 +194,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         setupButtons()
         startPlaybackService()
 
+        applyThemeVocabulary()
         showLibraryView()
         refreshShelfTitles()
         handleIncomingIntent(intent)
@@ -204,6 +221,8 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     private fun setupLibraryRecyclerView() {
         booksAdapter = BooksAdapter(
             books = emptyList(),
+            chapterLabel = { n, total -> words.chapter(n, total) },
+            bookXp = { id -> if (appTheme == AppTheme.CLASSIC) null else words.bookXp(game.bookXp(id)) },
             onBookClicked = { book ->
                 openSavedBook(book)
             },
@@ -212,6 +231,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
                 audioCache.clearBookCache(book.id)
                 bookmarkRepository.removeForBook(book.id)
                 checkpointStore.clear(book.id)
+                game.forgetBook(book.id)
                 refreshLibraryView()
                 Toast.makeText(this, "Deleted ${book.title}", Toast.LENGTH_SHORT).show()
             }
@@ -251,6 +271,66 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         menu.show()
     }
 
+    private fun themeColor(attr: Int): Int {
+        val value = android.util.TypedValue()
+        theme.resolveAttribute(attr, value, true)
+        return value.data
+    }
+
+    private fun themeDrawable(attr: Int): Int {
+        val value = android.util.TypedValue()
+        theme.resolveAttribute(attr, value, true)
+        return value.resourceId
+    }
+
+    // ------------------------------------------------------------ app theme
+
+    /**
+     * Puts the theme's words on the fixed chrome, and hides the game furniture
+     * in Classic, which has no levels to show.
+     */
+    private fun applyThemeVocabulary() {
+        val gamified = appTheme != AppTheme.CLASSIC
+
+        binding.btnMainImport.text = words.importBook
+        binding.btnOpenSettings.text = words.settingsChip
+
+        binding.xpRow.visibility = if (gamified) View.VISIBLE else View.GONE
+        binding.tvCombo.visibility = View.GONE
+
+        if (gamified) {
+            binding.tvHeroStreak.text = words.streak(game.streakDays)
+            val (into, span) = game.levelProgress
+            binding.pbXp.max = span.coerceAtLeast(1L).toInt()
+            binding.pbXp.progress = into.toInt()
+            binding.tvXpValue.text = "Lv ${game.level} · ${game.totalXp}"
+            binding.tvXpLabel.text = if (appTheme == AppTheme.PIXEL) "XP" else "♥"
+        } else {
+            binding.tvHeroStreak.text = "MultiTTS 离线朗读 · Offline audio reading"
+        }
+    }
+
+    /** The header's level bar and the shelf's per-book totals move as you read. */
+    private fun refreshGameHeader() {
+        if (appTheme == AppTheme.CLASSIC) return
+        binding.tvHeroStreak.text = words.streak(game.streakDays)
+        val (into, span) = game.levelProgress
+        binding.pbXp.max = span.coerceAtLeast(1L).toInt()
+        binding.pbXp.progress = into.toInt()
+        binding.tvXpValue.text = "Lv ${game.level} · ${game.totalXp}"
+    }
+
+    private fun refreshCombo() {
+        if (appTheme == AppTheme.CLASSIC || game.sessionSentences == 0) {
+            binding.tvCombo.visibility = View.GONE
+            binding.btnTtsPanelExpand.visibility = View.VISIBLE
+            return
+        }
+        binding.tvCombo.visibility = View.VISIBLE
+        binding.btnTtsPanelExpand.visibility = View.GONE
+        binding.tvCombo.text = words.combo(game.sessionSentences)
+    }
+
     private fun refreshLibraryView() {
         val books = sortedBooks(bookRepository.getAllBooks())
         binding.btnSortBooks.text = sortLabel()
@@ -262,7 +342,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             binding.rvRecentBooks.visibility = View.GONE
             binding.tvEmptyShelf.visibility = View.VISIBLE
         }
-        binding.tvShelfLabel.text = "MY SHELF 我的书架 · ${books.size}"
+        binding.tvShelfLabel.text = "${words.shelf} · ${books.size}"
     }
 
     private fun setupTTS() {
@@ -478,8 +558,10 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
 
     private fun scrubberLabel(sentenceIndex: Int): String {
         val chapter = chaptersList.getOrNull(currentChapterIndex)?.title ?: ""
-        return if (currentSentences.isEmpty()) chapter
-        else "$chapter · sentence ${sentenceIndex + 1}/${currentSentences.size}"
+        if (currentSentences.isEmpty()) return chapter
+        val read = (sentenceIndex + 1) * 100 / currentSentences.size
+        val cached = binding.sliderTtsProgress.secondaryProgress / 10
+        return "▮ ${words.narratedLegend} $read%   ▮ ${words.cachedLegend} $cached%   ·   $chapter"
     }
 
     private fun updateScrubber(sentenceIndex: Int) {
@@ -694,7 +776,8 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         areToolbarsVisible = true
 
         binding.tvAppTitle.text = currentBook?.title ?: "Readest++"
-        binding.tvSubtitle.text = "${currentBook?.format} · Ch ${currentChapterIndex + 1}/${chaptersList.size}"
+        binding.tvSubtitle.text =
+            "${currentBook?.format} · ${words.chapter(currentChapterIndex + 1, chaptersList.size)}"
     }
 
     private fun showLibraryView() {
@@ -739,7 +822,8 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         runOnUiThread {
             applyReaderSettings()
             binding.readerWebView.evaluateJavascript("ReaderApp.loadChapterData($json)", null)
-            binding.tvSubtitle.text = "${currentBook?.format} · ${chapter.title} (${currentChapterIndex + 1}/${chaptersList.size})"
+            binding.tvSubtitle.text = "${currentBook?.format} · " +
+                "${words.chapter(currentChapterIndex + 1, chaptersList.size)} · ${chapter.title}"
         }
     }
 
@@ -771,6 +855,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             currentChapterIndex = currentChapterIndex,
             bookmarks = bookmarkRepository.getForBook(book.id),
             startOnBookmarks = startOnBookmarks,
+            title = words.contents,
             onChapterSelected = { index -> jumpToChapter(index, 0) },
             onBookmarkSelected = { bm -> jumpToChapter(bm.chapterIndex, bm.sentenceIndex) },
             onBookmarkDeleted = { bm ->
@@ -891,7 +976,18 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
                 translateTarget = targetLabel,
                 display = "$themeLabel · ${currentFontSize}px · $modeLabel",
                 shelfOrder = sortLabel().removeSuffix(" ▾"),
-                version = versionLabel()
+                version = versionLabel(),
+                appTheme = appTheme.label,
+                voiceRowLabel = words.voice,
+                offlineRowLabel = words.offlineAudio,
+                displayRowLabel = words.display,
+                shelfRowLabel = words.shelfOrder,
+                title = words.settings,
+                stats = if (appTheme == AppTheme.CLASSIC) null else Triple(
+                    game.level,
+                    game.streakDays,
+                    game.badges(audioCache.getTotalCacheSizeBytes()).size
+                )
             ),
             onOpenVoice = { showTtsBottomSheet() },
             onOpenEngine = { MultiTTSDownloadDialog(this) { setupTTS() }.show() },
@@ -899,10 +995,41 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             onOpenDictionaries = { showDictionaryManager() },
             onOpenTranslate = { showTranslateTargetPicker() },
             onOpenDisplay = { showReaderSettingsBottomSheet() },
+            onOpenAppTheme = { showAppThemePicker() },
             onOpenShelfOrder = { showSortChooser() },
             onCheckUpdate = { checkForUpdate() },
             onOpenReleases = { openReleasesPage() }
         ).show(supportFragmentManager, "settings")
+    }
+
+    /**
+     * Switching theme swaps every drawable and typeface the view tree resolved
+     * at inflation, so the activity is recreated rather than walked and patched.
+     */
+    private fun showAppThemePicker() {
+        val themes = AppTheme.entries
+        val labels = themes.map { "${it.label}\n${it.blurb}" }.toTypedArray()
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("App theme · 主题")
+            .setSingleChoiceItems(labels, themes.indexOf(appTheme)) { dialog, which ->
+                dialog.dismiss()
+                val chosen = themes[which]
+                if (chosen == appTheme) return@setSingleChoiceItems
+                AppTheme.save(this, chosen)
+                // The page follows the chrome unless the reader has deliberately
+                // picked something else, so a fresh switch looks like one design.
+                skinFor(chosen)?.let { prefs.edit().putString("theme", it).apply() }
+                recreate()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    /** The reader page that belongs to an app theme, if it has one. */
+    private fun skinFor(theme: AppTheme): String? = when (theme) {
+        AppTheme.PIXEL -> "theme-parchment"
+        AppTheme.COZY -> "theme-meadow"
+        AppTheme.CLASSIC -> "theme-light"
     }
 
     /** Sort is reachable from the hub, where the shelf chip may not be on screen. */
@@ -1140,6 +1267,11 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
                 sentenceText = sentenceText,
                 store = dictionaryStore,
                 defaultTarget = target,
+                foundLabel = words.wordFound,
+                onLookedUp = {
+                    game.onWordLookedUp(currentBook?.id)
+                    refreshGameHeader()
+                },
                 onTargetChanged = { prefs.edit().putString("translate_target", it).apply() },
                 onSpeak = { text -> ttsController.speak(text, "word_lookup") },
                 onReadFromHere = { index -> onSentenceClicked(index, sentenceText) },
@@ -1198,16 +1330,27 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             binding.tvAudioSourceBadge.visibility = View.VISIBLE
             if (isCached) {
                 binding.tvAudioSourceBadge.text = "⚡ Cached · 0% CPU"
-                binding.tvAudioSourceBadge.setBackgroundResource(R.drawable.bg_pill_green_soft)
-                binding.tvAudioSourceBadge.setTextColor(0xFF059669.toInt())
+                binding.tvAudioSourceBadge.setBackgroundResource(themeDrawable(R.attr.rdChipBgSuccess))
+                binding.tvAudioSourceBadge.setTextColor(themeColor(R.attr.rdOnSuccessChip))
             } else {
                 binding.tvAudioSourceBadge.text = "Synthesizing"
-                binding.tvAudioSourceBadge.setBackgroundResource(R.drawable.bg_chip_speed)
-                binding.tvAudioSourceBadge.setTextColor(0xFF2563EB.toInt())
+                binding.tvAudioSourceBadge.setBackgroundResource(themeDrawable(R.attr.rdChipBgMuted))
+                binding.tvAudioSourceBadge.setTextColor(themeColor(R.attr.rdTextSecondary))
             }
 
             currentBook?.let { book ->
                 bookRepository.updateProgress(book.id, currentChapterIndex, sentenceIndex)
+            }
+
+            // Reaching a new sentence is the unit of reading the game themes
+            // score. Moving backwards or re-reading does not pay again.
+            if (sentenceIndex > lastScoredSentence || currentChapterIndex != lastScoredChapter) {
+                lastScoredSentence = sentenceIndex
+                lastScoredChapter = currentChapterIndex
+                game.onSentenceNarrated(currentBook?.id)
+                game.countSessionSentence()
+                refreshCombo()
+                refreshGameHeader()
             }
 
             // Highlight in WebView

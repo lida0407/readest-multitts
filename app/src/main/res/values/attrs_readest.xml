@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The app's themeable surface.
+
+  Every colour, shape and typeface the app draws goes through one of these, so
+  a theme is a single style that supplies them all rather than an edit spread
+  across every layout. Layouts reference ?attr/rd… and never a literal colour.
+-->
+<resources>
+
+    <!-- Surfaces -->
+    <attr name="rdBg" format="color" />
+    <attr name="rdPanel" format="color" />
+    <attr name="rdPanelSunk" format="color" />
+    <attr name="rdShadow" format="color" />
+    <attr name="rdHeaderCard" format="color" />
+    <attr name="rdOnHeaderCard" format="color" />
+
+    <!-- Lines -->
+    <attr name="rdOutline" format="color" />
+    <attr name="rdOutlineMuted" format="color" />
+    <attr name="rdDivider" format="color" />
+
+    <!-- Type colours -->
+    <attr name="rdTextPrimary" format="color" />
+    <attr name="rdTextSecondary" format="color" />
+    <attr name="rdTextTertiary" format="color" />
+
+    <!-- Semantics -->
+    <attr name="rdAccent" format="color" />
+    <attr name="rdOnAccent" format="color" />
+    <!-- Text sitting on a chip. The success chip is a pale wash in Classic but
+         a solid green fill in both game themes, so its label cannot be green. -->
+    <attr name="rdOnChip" format="color" />
+    <attr name="rdOnSuccessChip" format="color" />
+    <attr name="rdXp" format="color" />
+    <attr name="rdInfo" format="color" />
+    <attr name="rdInfoSoft" format="color" />
+    <attr name="rdSuccess" format="color" />
+    <attr name="rdSuccessBright" format="color" />
+    <attr name="rdCachedTrack" format="color" />
+    <attr name="rdDanger" format="color" />
+    <attr name="rdBadgeBg" format="color" />
+
+    <!-- Book format badges -->
+    <attr name="rdBadgeEpub" format="color" />
+    <attr name="rdBadgeTxt" format="color" />
+    <attr name="rdBadgePdf" format="color" />
+    <attr name="rdBadgeMobi" format="color" />
+
+    <!-- The reader page, mirrored into reader.css -->
+    <attr name="rdReaderPage" format="color" />
+    <attr name="rdReaderInk" format="color" />
+    <attr name="rdSentenceHl" format="color" />
+    <attr name="rdWordHl" format="color" />
+
+    <!-- Shaped backgrounds. A theme swaps the drawable rather than the radius,
+         because a hard pixel shadow and a soft rounded one are different shapes,
+         not different values of one shape. -->
+    <attr name="rdPanelBg" format="reference" />
+    <attr name="rdHeaderBg" format="reference" />
+    <attr name="rdCardBg" format="reference" />
+    <attr name="rdSunkBg" format="reference" />
+    <attr name="rdSheetBg" format="reference" />
+    <attr name="rdChipBg" format="reference" />
+    <attr name="rdChipBgSuccess" format="reference" />
+    <attr name="rdChipBgMuted" format="reference" />
+    <attr name="rdButtonPrimaryBg" format="reference" />
+    <attr name="rdIconTileBg" format="reference" />
+    <attr name="rdLogoBg" format="reference" />
+    <attr name="rdDragHandleBg" format="reference" />
+    <attr name="rdProgressDrawable" format="reference" />
+    <attr name="rdCacheProgressDrawable" format="reference" />
+    <attr name="rdXpProgressDrawable" format="reference" />
+    <attr name="rdSeekbarDrawable" format="reference" />
+    <attr name="rdSeekbarThumb" format="reference" />
+    <attr name="rdBadgeBgShape" format="reference" />
+
+    <!-- Type. Themes differ in typeface and casing, not only in size. -->
+    <attr name="rdDisplayAppearance" format="reference" />
+    <attr name="rdHeadingAppearance" format="reference" />
+    <attr name="rdEyebrowAppearance" format="reference" />
+    <attr name="rdTitleAppearance" format="reference" />
+    <attr name="rdBodyAppearance" format="reference" />
+    <attr name="rdSubtitleAppearance" format="reference" />
+    <attr name="rdValueAppearance" format="reference" />
+    <attr name="rdChipAppearance" format="reference" />
+
+    <!-- Fonts, for the few places a whole appearance is overkill -->
+    <attr name="rdFontHeading" format="reference" />
+    <attr name="rdFontBody" format="reference" />
+
+</resources>

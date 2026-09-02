@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface"
+    android:background="?attr/rdPanel"
     android:orientation="vertical"
     android:paddingStart="20dp"
     android:paddingTop="12dp"
@@ -15,7 +15,7 @@
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="14dp"
-        android:background="@drawable/bg_drag_handle" />
+        android:background="?attr/rdDragHandleBg" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,17 +23,30 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tvWord"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:text="word"
-            android:textColor="@color/text_primary"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+
+            <!-- What the theme calls finding a word. -->
+            <TextView
+                android:id="@+id/tvWordEyebrow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LOOKED UP"
+                android:textAppearance="?attr/rdEyebrowAppearance" />
+
+            <TextView
+                android:id="@+id/tvWord"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="word"
+                android:textAppearance="?attr/rdDisplayAppearance"
+                android:textSize="22sp" />
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/btnSpeakWord"
@@ -42,7 +55,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Speak this word"
             android:src="@android:drawable/ic_lock_silent_mode_off"
-            app:tint="@color/accent" />
+            app:tint="?attr/rdAccent" />
 
         <ImageButton
             android:id="@+id/btnCopyWord"
@@ -51,7 +64,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Copy"
             android:src="@android:drawable/ic_menu_edit"
-            app:tint="@color/text_secondary" />
+            app:tint="?attr/rdTextSecondary" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButtonToggleGroup
@@ -118,7 +131,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lineSpacingExtra="3dp"
-            android:textColor="@color/text_primary"
+            android:textColor="?attr/rdTextPrimary"
             android:textIsSelectable="true"
             android:textSize="15sp" />
     </ScrollView>

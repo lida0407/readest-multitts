@@ -25,6 +25,8 @@ class ContentsBottomSheet(
     private val currentChapterIndex: Int,
     private val bookmarks: List<Bookmark>,
     private val startOnBookmarks: Boolean = false,
+    /** What this theme calls the table of contents. */
+    private val title: String = "Contents · 目录",
     private val onChapterSelected: (Int) -> Unit,
     private val onBookmarkSelected: (Bookmark) -> Unit,
     private val onBookmarkDeleted: (Bookmark) -> Unit
@@ -53,6 +55,7 @@ class ContentsBottomSheet(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.tvContentsTitle.text = title
 
         binding.rvContents.layoutManager = LinearLayoutManager(requireContext())
         showingBookmarks = startOnBookmarks

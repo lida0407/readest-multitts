@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface"
+    android:background="?attr/rdPanel"
     android:orientation="vertical"
     android:paddingStart="22dp"
     android:paddingTop="8dp"
@@ -15,13 +15,13 @@
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="14dp"
-        android:background="@drawable/bg_drag_handle" />
+        android:background="?attr/rdDragHandleBg" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Offline audio · 离线音频"
-        android:textColor="@color/text_primary"
+        android:textColor="?attr/rdTextPrimary"
         android:textSize="16sp"
         android:textStyle="bold" />
 
@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="0 B cached"
-        android:textColor="@color/text_secondary"
+        android:textColor="?attr/rdTextSecondary"
         android:textSize="12sp" />
 
     <TextView
@@ -41,7 +41,7 @@
         android:layout_marginTop="28dp"
         android:gravity="center"
         android:text="还没有离线音频\nCache a chapter or book from Voice &amp; playback settings"
-        android:textColor="@color/text_tertiary"
+        android:textColor="?attr/rdTextTertiary"
         android:textSize="13sp"
         android:visibility="gone" />
 
@@ -60,7 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text=""
-        android:textColor="@color/green_text"
+        android:textColor="?attr/rdSuccess"
         android:textSize="12sp"
         android:visibility="gone" />
 
@@ -71,7 +71,7 @@
         android:layout_height="8dp"
         android:layout_marginBottom="10dp"
         android:max="100"
-        android:progressDrawable="@drawable/progress_thin_green"
+        android:progressDrawable="?attr/rdCacheProgressDrawable"
         android:visibility="gone" />
 
     <LinearLayout
@@ -87,11 +87,11 @@
             android:layout_weight="1"
             android:text="Cancel export 取消"
             android:textAllCaps="false"
-            android:textColor="@color/text_secondary"
+            android:textColor="?attr/rdTextSecondary"
             android:textSize="12sp"
             android:visibility="gone"
             app:cornerRadius="22dp"
-            app:strokeColor="@color/surface_border" />
+            app:strokeColor="?attr/rdOutlineMuted" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnClearAllCache"
@@ -101,9 +101,9 @@
             android:layout_weight="1"
             android:text="Delete all 全部删除"
             android:textAllCaps="false"
-            android:textColor="@color/danger"
+            android:textColor="?attr/rdDanger"
             android:textSize="12sp"
             app:cornerRadius="22dp"
-            app:strokeColor="@color/red_line" />
+            app:strokeColor="?attr/rdDanger" />
     </LinearLayout>
 </LinearLayout>

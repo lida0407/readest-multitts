@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape>
+            <solid android:color="?attr/rdBg" />
+            <stroke android:width="2dp" android:color="?attr/rdOutline" />
+        </shape>
+    </item>
+    <item android:id="@android:id/progress" android:left="2dp" android:top="2dp" android:right="2dp" android:bottom="2dp">
+        <clip><shape><solid android:color="?attr/rdXp" /></shape></clip>
+    </item>
+</layer-list>

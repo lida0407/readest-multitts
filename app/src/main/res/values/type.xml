@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Text appearances, one set per theme.
+
+  Pixel and Cozy differ in more than size: Press Start 2P is a display face that
+  is unreadable below ~8sp and has no CJK glyphs (Android falls back per glyph),
+  so headings are small and uppercase while body text is a separate, larger face.
+-->
+<resources>
+
+    <!-- ══════════ Classic ══════════ -->
+    <style name="TextAppearance.Classic.Display" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/rdTextPrimary</item>
+    </style>
+    <style name="TextAppearance.Classic.Heading" parent="">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/rdTextPrimary</item>
+    </style>
+    <style name="TextAppearance.Classic.Eyebrow" parent="">
+        <item name="android:textSize">10.5sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textColor">?attr/rdTextSecondary</item>
+    </style>
+    <style name="TextAppearance.Classic.Title" parent="">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/rdTextPrimary</item>
+    </style>
+    <style name="TextAppearance.Classic.Body" parent="">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">?attr/rdTextPrimary</item>
+    </style>
+    <style name="TextAppearance.Classic.Subtitle" parent="">
+        <item name="android:textSize">11.5sp</item>
+        <item name="android:textColor">?attr/rdTextSecondary</item>
+    </style>
+    <style name="TextAppearance.Classic.Value" parent="">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/rdAccent</item>
+    </style>
+    <style name="TextAppearance.Classic.Chip" parent="">
+        <item name="android:textSize">10.5sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- ══════════ Pixel ══════════ -->
+    <style name="TextAppearance.Pixel.Display" parent="">
+        <item name="android:fontFamily">@font/press_start_2p</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/rdAccent</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    <style name="TextAppearance.Pixel.Heading" parent="">
+        <item name="android:fontFamily">@font/press_start_2p</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">?attr/rdAccent</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    <style name="TextAppearance.Pixel.Eyebrow" parent="">
+        <item name="android:fontFamily">@font/press_start_2p</item>
+        <item name="android:textSize">8sp</item>
+        <item name="android:textColor">?attr/rdTextSecondary</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    <style name="TextAppearance.Pixel.Title" parent="">
+        <item name="android:fontFamily">@font/vt323</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?attr/rdTextPrimary</item>
+    </style>
+    <style name="TextAppearance.Pixel.Body" parent="">
+        <item name="android:fontFamily">@font/vt323</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">?attr/rdTextPrimary</item>
+    </style>
+    <style name="TextAppearance.Pixel.Subtitle" parent="">
+        <item name="android:fontFamily">@font/vt323</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">?attr/rdTextSecondary</item>
+    </style>
+    <style name="TextAppearance.Pixel.Value" parent="">
+        <item name="android:fontFamily">@font/press_start_2p</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/rdInfo</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    <style name="TextAppearance.Pixel.Chip" parent="">
+        <item name="android:fontFamily">@font/vt323</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <!-- ══════════ Cozy ══════════ -->
+    <style name="TextAppearance.Cozy.Display" parent="">
+        <item name="android:fontFamily">@font/fredoka_bold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">?attr/rdTextPrimary</item>
+    </style>
+    <style name="TextAppearance.Cozy.Heading" parent="">
+        <item name="android:fontFamily">@font/fredoka_bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?attr/rdTextPrimary</item>
+    </style>
+    <style name="TextAppearance.Cozy.Eyebrow" parent="">
+        <item name="android:fontFamily">@font/nunito_extrabold</item>
+        <item name="android:textSize">11.5sp</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textColor">?attr/rdTextSecondary</item>
+    </style>
+    <style name="TextAppearance.Cozy.Title" parent="">
+        <item name="android:fontFamily">@font/fredoka_semibold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">?attr/rdTextPrimary</item>
+    </style>
+    <style name="TextAppearance.Cozy.Body" parent="">
+        <item name="android:fontFamily">@font/nunito_bold</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="android:textColor">?attr/rdTextPrimary</item>
+    </style>
+    <style name="TextAppearance.Cozy.Subtitle" parent="">
+        <item name="android:fontFamily">@font/nunito_bold</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/rdTextSecondary</item>
+    </style>
+    <style name="TextAppearance.Cozy.Value" parent="">
+        <item name="android:fontFamily">@font/nunito_extrabold</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/rdTextPrimary</item>
+    </style>
+    <style name="TextAppearance.Cozy.Chip" parent="">
+        <item name="android:fontFamily">@font/nunito_extrabold</item>
+        <item name="android:textSize">11.5sp</item>
+    </style>
+
+    <!-- Default TextView style per theme, so a plain TextView with only a
+         textSize still gets the theme's typeface. Anything with an explicit
+         textAppearance overrides this, which is the point. -->
+    <style name="Widget.Readest.TextView.Classic" parent="Widget.AppCompat.TextView" />
+
+    <style name="Widget.Readest.TextView.Pixel" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/vt323</item>
+    </style>
+
+    <style name="Widget.Readest.TextView.Cozy" parent="Widget.AppCompat.TextView">
+        <item name="android:fontFamily">@font/nunito_bold</item>
+    </style>
+
+    <style name="Widget.Readest.Button.Classic" parent="Widget.Material3.Button" />
+
+    <style name="Widget.Readest.Button.Pixel" parent="Widget.Material3.Button">
+        <item name="android:fontFamily">@font/vt323</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">0dp</item>
+    </style>
+
+    <style name="Widget.Readest.Button.Cozy" parent="Widget.Material3.Button">
+        <item name="android:fontFamily">@font/nunito_extrabold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">99dp</item>
+    </style>
+</resources>

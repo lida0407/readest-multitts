@@ -1,3 +1,16 @@
+@font-face {
+    font-family: "VT323";
+    src: url("../fonts/vt323.ttf") format("truetype");
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Nunito";
+    src: url("../fonts/nunito.ttf") format("truetype");
+    font-weight: 700;
+    font-display: swap;
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -64,6 +77,41 @@ body.theme-mint {
     --active-sentence-border: #059669;
     --footer-text: #4D7858;
 }
+
+/* ── Skins that belong to an app theme ──────────────────────────────────────
+   Parchment and Meadow are the reader pages of the Pixel and Cozy themes: the
+   app picks one automatically when you switch theme, so the page and the chrome
+   are one design rather than two. Both can still be overridden by hand. */
+body.theme-parchment {
+    --bg-color: #F4F4F4;
+    --text-color: #1A1C2C;
+    --highlight-bg: #73EFF7;
+    --active-sentence-bg: #FFCD75;
+    --active-sentence-border: #1A1C2C;
+    --footer-text: #566C86;
+    --font-family: "VT323", ui-monospace, SFMono-Regular, Menlo, "PingFang SC", "Noto Sans SC", monospace;
+    --line-height: 1.35;
+}
+
+body.theme-meadow {
+    --bg-color: #FFFBF2;
+    --text-color: #3B2E25;
+    --highlight-bg: #BFE3F5;
+    --active-sentence-bg: #F7C948;
+    --active-sentence-border: #3B2E25;
+    --footer-text: #8B7A66;
+    --font-family: "Nunito", -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+    --line-height: 1.5;
+}
+
+body.theme-parchment .sentence.active,
+body.theme-meadow .sentence.active {
+    /* A solid block, not a translucent wash: both game themes highlight with
+       a flat fill the way a pixel or storybook page would. */
+    background-color: var(--active-sentence-bg);
+}
+
+
 
 html, body {
     width: 100vw;

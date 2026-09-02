@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape><corners android:radius="3dp" /><solid android:color="?attr/rdPanelSunk" /></shape>
+    </item>
+    <!-- How much of this chapter is already cached for offline listening -->
+    <item android:id="@android:id/secondaryProgress">
+        <clip><shape><corners android:radius="3dp" /><solid android:color="?attr/rdCachedTrack" /></shape></clip>
+    </item>
+    <item android:id="@android:id/progress">
+        <clip><shape><corners android:radius="3dp" /><solid android:color="?attr/rdAccent" /></shape></clip>
+    </item>
+</layer-list>

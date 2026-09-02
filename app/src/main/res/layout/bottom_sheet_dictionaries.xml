@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/surface"
+    android:background="?attr/rdPanel"
     android:orientation="vertical"
     android:paddingStart="22dp"
     android:paddingTop="8dp"
@@ -14,13 +14,13 @@
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="14dp"
-        android:background="@drawable/bg_drag_handle" />
+        android:background="?attr/rdDragHandleBg" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Dictionaries"
-        android:textColor="@color/text_primary"
+        android:textColor="?attr/rdTextPrimary"
         android:textSize="17sp"
         android:textStyle="bold" />
 
@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="Add a MOBI or PRC dictionary to look words up offline."
-        android:textColor="@color/text_secondary"
+        android:textColor="?attr/rdTextSecondary"
         android:textSize="12sp" />
 
     <ProgressBar
@@ -47,7 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:textColor="@color/accent"
+        android:textColor="?attr/rdAccent"
         android:textSize="12sp"
         android:visibility="gone" />
 
@@ -57,7 +57,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
         android:text="No dictionaries yet.\n\nMOBI/PRC dictionary files — the kind Kindle uses — work here. A dictionary is indexed once when you add it, then works with no network."
-        android:textColor="@color/text_secondary"
+        android:textColor="?attr/rdTextSecondary"
         android:textSize="13sp"
         android:visibility="gone" />
 

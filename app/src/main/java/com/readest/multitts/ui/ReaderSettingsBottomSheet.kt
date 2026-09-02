@@ -36,7 +36,9 @@ class ReaderSettingsBottomSheet(
             "theme-oled" to binding.btnThemeOled,
             "theme-light" to binding.btnThemeLight,
             "theme-sepia" to binding.btnThemeSepia,
-            "theme-mint" to binding.btnThemeMint
+            "theme-mint" to binding.btnThemeMint,
+            "theme-parchment" to binding.btnThemeParchment,
+            "theme-meadow" to binding.btnThemeMeadow
         )
 
         fun updateSelection() {

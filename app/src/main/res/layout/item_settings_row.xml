@@ -17,7 +17,7 @@
         android:id="@+id/tvRowIcon"
         android:layout_width="34dp"
         android:layout_height="34dp"
-        android:background="@drawable/bg_chip_soft_blue"
+        android:background="?attr/rdChipBg"
         android:gravity="center"
         android:text="🔊"
         android:textSize="15sp" />
@@ -36,7 +36,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Title"
-            android:textColor="@color/text_primary"
+            android:textColor="?attr/rdTextPrimary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -47,7 +47,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:text="Subtitle"
-            android:textColor="@color/text_secondary"
+            android:textColor="?attr/rdTextSecondary"
             android:textSize="11.5sp" />
     </LinearLayout>
 
@@ -57,6 +57,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="›"
-        android:textColor="@color/text_tertiary"
+        android:textColor="?attr/rdTextTertiary"
         android:textSize="20sp" />
 </LinearLayout>

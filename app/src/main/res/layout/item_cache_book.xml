@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
-    app:cardBackgroundColor="@color/surface"
+    app:cardBackgroundColor="?attr/rdPanel"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
-    app:strokeColor="@color/surface_border"
+    app:strokeColor="?attr/rdOutlineMuted"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -23,7 +23,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:text="Book title"
-            android:textColor="@color/text_primary"
+            android:textColor="?attr/rdTextPrimary"
             android:textSize="14.5sp"
             android:textStyle="bold" />
 
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
             android:text="0 MB · 0 clips"
-            android:textColor="@color/text_secondary"
+            android:textColor="?attr/rdTextSecondary"
             android:textSize="11.5sp" />
 
         <LinearLayout
@@ -47,10 +47,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:backgroundTint="@color/green"
+                android:backgroundTint="?attr/rdSuccess"
                 android:text="Export to Music 导出"
                 android:textAllCaps="false"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/rdOnAccent"
                 android:textSize="12sp"
                 app:cornerRadius="22dp" />
 
@@ -65,10 +65,10 @@
                 android:layout_height="wrap_content"
                 android:text="Delete 删除"
                 android:textAllCaps="false"
-                android:textColor="@color/danger"
+                android:textColor="?attr/rdDanger"
                 android:textSize="12sp"
                 app:cornerRadius="22dp"
-                app:strokeColor="@color/red_line" />
+                app:strokeColor="?attr/rdDanger" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Per-theme palettes. Nothing outside themes.xml should reference these. -->
+<resources>
+
+    <!-- ══════════ Pixel · Sweetie-16 ══════════ -->
+    <color name="px_bg">#1A1C2C</color>
+    <color name="px_panel">#29366F</color>
+    <color name="px_panel_shadow">#333C57</color>
+    <color name="px_border">#F4F4F4</color>
+    <color name="px_border_muted">#566C86</color>
+    <color name="px_text_secondary">#94B0C2</color>
+    <color name="px_accent">#FFCD75</color>
+    <color name="px_accent_on">#1A1C2C</color>
+    <color name="px_xp">#41A6F6</color>
+    <color name="px_info">#73EFF7</color>
+    <color name="px_success">#38B764</color>
+    <color name="px_success_bright">#A7F070</color>
+    <color name="px_cached_track">#257179</color>
+    <color name="px_danger">#B13E53</color>
+    <color name="px_badge_bg">#5D275D</color>
+    <color name="px_badge_epub">#3B5DC9</color>
+    <color name="px_badge_txt">#257179</color>
+    <color name="px_badge_pdf">#B13E53</color>
+    <color name="px_badge_mobi">#EF7D57</color>
+    <color name="px_reader_page">#F4F4F4</color>
+    <color name="px_reader_ink">#1A1C2C</color>
+
+    <!-- ══════════ Cozy ══════════ -->
+    <color name="cz_bg">#FFF4E0</color>
+    <color name="cz_surface">#FFF9EC</color>
+    <color name="cz_reader_page">#FFFBF2</color>
+    <color name="cz_ink">#3B2E25</color>
+    <color name="cz_ink_muted">#8B7A66</color>
+    <color name="cz_divider">#EADBC2</color>
+    <color name="cz_outline_muted">#C9B79B</color>
+    <color name="cz_sun">#F7C948</color>
+    <color name="cz_leaf">#5FA463</color>
+    <color name="cz_sky">#6FB7E9</color>
+    <color name="cz_sky_soft">#BFE3F5</color>
+    <color name="cz_coral">#F0785A</color>
+    <color name="cz_lilac">#C9A0DC</color>
+    <color name="cz_on_dark">#FFF9EC</color>
+
+</resources>

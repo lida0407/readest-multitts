@@ -1,88 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- A plain themed background instead of MaterialCardView: the pixel theme's
+     card is a hard-edged rect with a 3dp keyline, which a card view's corner
+     and elevation model cannot express. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
-    app:cardBackgroundColor="@color/surface"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="1dp"
-    app:strokeColor="@color/surface_border"
-    app:strokeWidth="1dp">
+    android:background="?attr/rdCardBg"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:orientation="vertical"
+    android:padding="12dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="14dp">
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvFormatBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:background="?attr/rdBadgeBgShape"
+            android:letterSpacing="0.05"
+            android:paddingStart="7dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="7dp"
+            android:paddingBottom="4dp"
+            android:text="EPUB"
+            android:textAppearance="?attr/rdChipAppearance"
+            android:textColor="#FFFFFF" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginStart="11dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvFormatBadge"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvCardTitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:background="@drawable/bg_badge_rounded"
-                android:letterSpacing="0.05"
-                android:paddingStart="7dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="7dp"
-                android:paddingBottom="4dp"
-                android:text="EPUB"
-                android:textColor="#FFFFFF"
-                android:textSize="9.5sp"
-                android:textStyle="bold" />
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="Book Title"
+                android:textAppearance="?attr/rdTitleAppearance" />
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="11dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvCardTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="2"
-                    android:text="Book Title"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14.5sp"
-                    android:textStyle="bold" />
+                android:layout_marginTop="3dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/tvCardProgress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Chapter 1 / 10"
+                    android:textAppearance="?attr/rdSubtitleAppearance" />
+
+                <!-- Experience earned in this book. Hidden in Classic, which
+                     has no game framing to hang it on. -->
+                <TextView
+                    android:id="@+id/tvCardXp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="Chapter 1 / 10"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
+                    android:layout_marginStart="8dp"
+                    android:text="★ 340 XP"
+                    android:textAppearance="?attr/rdSubtitleAppearance"
+                    android:textColor="?attr/rdAccent" />
             </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/btnDeleteBook"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Remove from library"
-                android:src="@android:drawable/ic_menu_delete"
-                app:tint="@color/text_tertiary" />
         </LinearLayout>
 
-        <ProgressBar
-            android:id="@+id/pbBookProgress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="4dp"
-            android:layout_marginTop="9dp"
-            android:max="100"
-            android:progress="15"
-            android:progressDrawable="@drawable/progress_thin_blue" />
+        <ImageButton
+            android:id="@+id/btnDeleteBook"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Remove from library"
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="?attr/rdTextTertiary" />
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+
+    <ProgressBar
+        android:id="@+id/pbBookProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginTop="9dp"
+        android:max="100"
+        android:progress="15"
+        android:progressDrawable="?attr/rdProgressDrawable" />
+</LinearLayout>

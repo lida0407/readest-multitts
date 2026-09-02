@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/surface">
+    android:background="?attr/rdPanel">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,7 +20,7 @@
             android:layout_height="4dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="14dp"
-            android:background="@drawable/bg_drag_handle" />
+            android:background="?attr/rdDragHandleBg" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -33,7 +33,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Voice &amp; playback · 语音设置"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/rdTextPrimary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -41,13 +41,13 @@
                 android:id="@+id/btnMultiTtsGuide"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_chip_green_soft"
+                android:background="?attr/rdChipBgSuccess"
                 android:paddingStart="7dp"
                 android:paddingTop="3dp"
                 android:paddingEnd="7dp"
                 android:paddingBottom="3dp"
                 android:text="★ MultiTTS Engine"
-                android:textColor="@color/green"
+                android:textColor="?attr/rdOnSuccessChip"
                 android:textSize="9.5sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -59,7 +59,7 @@
             android:layout_marginTop="14dp"
             android:letterSpacing="0.08"
             android:text="LANGUAGE · 语言"
-            android:textColor="@color/text_secondary"
+            android:textColor="?attr/rdTextSecondary"
             android:textSize="10.5sp"
             android:textStyle="bold" />
 
@@ -68,8 +68,8 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="6dp"
-            android:background="@drawable/bg_spinner_light"
-            android:popupBackground="@color/surface" />
+            android:background="?attr/rdChipBgMuted"
+            android:popupBackground="?attr/rdPanel" />
 
         <!-- Engine Selector Spinner -->
         <TextView
@@ -78,7 +78,7 @@
             android:layout_marginTop="12dp"
             android:letterSpacing="0.08"
             android:text="SPEECH ENGINE · 引擎"
-            android:textColor="@color/text_secondary"
+            android:textColor="?attr/rdTextSecondary"
             android:textSize="10.5sp"
             android:textStyle="bold" />
 
@@ -87,8 +87,8 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="6dp"
-            android:background="@drawable/bg_spinner_light"
-            android:popupBackground="@color/surface" />
+            android:background="?attr/rdChipBgMuted"
+            android:popupBackground="?attr/rdPanel" />
 
         <!-- Voice Selector Spinner -->
         <TextView
@@ -97,7 +97,7 @@
             android:layout_marginTop="12dp"
             android:letterSpacing="0.08"
             android:text="VOICE · 发音人"
-            android:textColor="@color/text_secondary"
+            android:textColor="?attr/rdTextSecondary"
             android:textSize="10.5sp"
             android:textStyle="bold" />
 
@@ -109,14 +109,14 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="6dp"
-            android:background="@drawable/bg_spinner_light"
+            android:background="?attr/rdChipBgMuted"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:text="Default voice"
-            android:textColor="@color/text_primary"
+            android:textColor="?attr/rdTextPrimary"
             android:textSize="13.5sp"
             android:textStyle="bold" />
 
@@ -145,7 +145,7 @@
                         android:layout_weight="1"
                         android:letterSpacing="0.06"
                         android:text="SPEED 语速"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="?attr/rdTextSecondary"
                         android:textSize="10.5sp"
                         android:textStyle="bold" />
 
@@ -154,7 +154,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="1.0x"
-                        android:textColor="@color/accent"
+                        android:textColor="?attr/rdAccent"
                         android:textSize="10.5sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -167,9 +167,9 @@
                     android:value="1.0"
                     android:valueFrom="0.5"
                     android:valueTo="3.0"
-                    app:thumbColor="@color/accent"
-                    app:trackColorActive="@color/accent"
-                    app:trackColorInactive="@color/track"
+                    app:thumbColor="?attr/rdAccent"
+                    app:trackColorActive="?attr/rdAccent"
+                    app:trackColorInactive="?attr/rdPanelSunk"
                     app:trackHeight="4dp" />
             </LinearLayout>
 
@@ -191,7 +191,7 @@
                         android:layout_weight="1"
                         android:letterSpacing="0.06"
                         android:text="PITCH 音调"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="?attr/rdTextSecondary"
                         android:textSize="10.5sp"
                         android:textStyle="bold" />
 
@@ -200,7 +200,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="1.0"
-                        android:textColor="@color/accent"
+                        android:textColor="?attr/rdAccent"
                         android:textSize="10.5sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -213,9 +213,9 @@
                     android:value="1.0"
                     android:valueFrom="0.5"
                     android:valueTo="2.0"
-                    app:thumbColor="@color/accent"
-                    app:trackColorActive="@color/accent"
-                    app:trackColorInactive="@color/track"
+                    app:thumbColor="?attr/rdAccent"
+                    app:trackColorActive="?attr/rdAccent"
+                    app:trackColorInactive="?attr/rdPanelSunk"
                     app:trackHeight="4dp" />
             </LinearLayout>
         </LinearLayout>
@@ -225,7 +225,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:background="@drawable/bg_cache_card_green"
+            android:background="?attr/rdSunkBg"
             android:orientation="vertical"
             android:padding="14dp">
 
@@ -240,7 +240,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="⚡ Energy-saving local cache · 本地缓存"
-                    android:textColor="@color/green_text"
+                    android:textColor="?attr/rdSuccess"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
@@ -249,7 +249,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0 KB cached"
-                    android:textColor="@color/green"
+                    android:textColor="?attr/rdSuccess"
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -259,7 +259,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Pre-synthesizes speech to local audio so playback works offline with 0% TTS CPU."
-                android:textColor="@color/text_secondary"
+                android:textColor="?attr/rdTextSecondary"
                 android:textSize="11sp" />
 
             <!-- Cache Scope Radio Selection -->
@@ -275,10 +275,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:buttonTint="@color/green"
+                    android:buttonTint="?attr/rdSuccess"
                     android:checked="true"
                     android:text="Current chapter 本章"
-                    android:textColor="@color/text_primary"
+                    android:textColor="?attr/rdTextPrimary"
                     android:textSize="12sp" />
 
                 <RadioButton
@@ -286,9 +286,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:buttonTint="@color/green"
+                    android:buttonTint="?attr/rdSuccess"
                     android:text="Entire book 全书"
-                    android:textColor="@color/text_primary"
+                    android:textColor="?attr/rdTextPrimary"
                     android:textSize="12sp" />
             </RadioGroup>
 
@@ -298,13 +298,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/bg_pill_green_soft"
+                android:background="?attr/rdChipBgSuccess"
                 android:paddingStart="10dp"
                 android:paddingTop="7dp"
                 android:paddingEnd="10dp"
                 android:paddingBottom="7dp"
                 android:text=""
-                android:textColor="@color/green_text"
+                android:textColor="?attr/rdOnSuccessChip"
                 android:textSize="11.5sp"
                 android:visibility="gone" />
 
@@ -316,7 +316,7 @@
                 android:layout_marginTop="4dp"
                 android:checked="true"
                 android:text="Keep screen on while caching 缓存时不锁屏"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/rdTextPrimary"
                 android:textSize="12sp" />
 
             <!-- Pre-generate Buttons -->
@@ -330,10 +330,10 @@
                     android:id="@+id/btnPreCacheChapter"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@color/green"
+                    android:backgroundTint="?attr/rdSuccess"
                     android:text="Start pre-cache · 开始缓存"
                     android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
+                    android:textColor="?attr/rdOnAccent"
                     android:textSize="12sp"
                     android:textStyle="bold"
                     app:cornerRadius="22dp" />
@@ -358,11 +358,11 @@
                     android:layout_weight="1"
                     android:text="Start over 重来"
                     android:textAllCaps="false"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="?attr/rdTextSecondary"
                     android:textSize="11sp"
                     android:visibility="gone"
                     app:cornerRadius="22dp"
-                    app:strokeColor="@color/surface_border" />
+                    app:strokeColor="?attr/rdOutlineMuted" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPauseCache"
@@ -377,11 +377,11 @@
                     android:layout_marginEnd="8dp"
                     android:text="Pause 暂停"
                     android:textAllCaps="false"
-                    android:textColor="@color/green"
+                    android:textColor="?attr/rdSuccess"
                     android:textSize="11sp"
                     android:visibility="gone"
                     app:cornerRadius="22dp"
-                    app:strokeColor="@color/green_line" />
+                    app:strokeColor="?attr/rdSuccess" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnStopCache"
@@ -396,11 +396,11 @@
                     android:layout_marginEnd="8dp"
                     android:text="Stop 停止"
                     android:textAllCaps="false"
-                    android:textColor="@color/danger"
+                    android:textColor="?attr/rdDanger"
                     android:textSize="11sp"
                     android:visibility="gone"
                     app:cornerRadius="22dp"
-                    app:strokeColor="@color/red_line" />
+                    app:strokeColor="?attr/rdDanger" />
 
                 <Space
                     android:layout_width="8dp"
@@ -418,10 +418,10 @@
                     android:layout_weight="1"
                     android:text="Manage 管理"
                     android:textAllCaps="false"
-                    android:textColor="@color/accent"
+                    android:textColor="?attr/rdAccent"
                     android:textSize="11sp"
                     app:cornerRadius="22dp"
-                    app:strokeColor="@color/surface_border" />
+                    app:strokeColor="?attr/rdOutlineMuted" />
             </LinearLayout>
 
             <!-- Pre-generation Progress Bar -->
@@ -433,7 +433,7 @@
                 android:layout_marginTop="10dp"
                 android:max="100"
                 android:progress="0"
-                android:progressDrawable="@drawable/progress_thin_green"
+                android:progressDrawable="?attr/rdCacheProgressDrawable"
                 android:visibility="gone" />
 
             <TextView
@@ -442,7 +442,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Synthesizing…"
-                android:textColor="@color/text_secondary"
+                android:textColor="?attr/rdTextSecondary"
                 android:textSize="11sp"
                 android:visibility="gone" />
         </LinearLayout>
@@ -461,7 +461,7 @@
                 android:layout_weight="1"
                 android:letterSpacing="0.08"
                 android:text="SLEEP TIMER · 定时关闭"
-                android:textColor="@color/text_secondary"
+                android:textColor="?attr/rdTextSecondary"
                 android:textSize="10.5sp"
                 android:textStyle="bold" />
 
@@ -469,8 +469,8 @@
                 android:id="@+id/spinnerSleepTimer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_spinner_light"
-                android:popupBackground="@color/surface" />
+                android:background="?attr/rdChipBgMuted"
+                android:popupBackground="?attr/rdPanel" />
         </LinearLayout>
 
     </LinearLayout>

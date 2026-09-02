@@ -32,6 +32,9 @@ class WordActionBottomSheet(
     private val sentenceText: String,
     private val store: DictionaryStore,
     private val defaultTarget: String,
+    /** The eyebrow above the word — the theme decides what a look-up is worth. */
+    private val foundLabel: String,
+    private val onLookedUp: () -> Unit,
     private val onTargetChanged: (String) -> Unit,
     private val onSpeak: (String) -> Unit,
     private val onReadFromHere: (Int) -> Unit,
@@ -66,6 +69,8 @@ class WordActionBottomSheet(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.tvWord.text = word
+        binding.tvWordEyebrow.text = foundLabel
+        onLookedUp()
 
         binding.btnSpeakWord.setOnClickListener { onSpeak(lastSpoken) }
         binding.btnCopyWord.setOnClickListener {

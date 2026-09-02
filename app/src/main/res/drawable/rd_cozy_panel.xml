@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shadow sits directly below with no blur and no offset sideways. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:top="5dp">
+        <shape>
+            <solid android:color="?attr/rdShadow" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+    <item android:bottom="5dp">
+        <shape>
+            <solid android:color="?attr/rdPanel" />
+            <stroke android:width="3dp" android:color="?attr/rdOutline" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+</layer-list>

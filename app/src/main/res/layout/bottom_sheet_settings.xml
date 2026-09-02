@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/surface"
+    android:background="?attr/rdPanel"
     android:orientation="vertical"
     android:paddingTop="8dp">
 
@@ -12,7 +12,7 @@
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="14dp"
-        android:background="@drawable/bg_drag_handle" />
+        android:background="?attr/rdDragHandleBg" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,10 +29,11 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tvSettingsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Settings · 设置"
-                android:textColor="@color/text_primary"
+                android:textColor="?attr/rdTextPrimary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -41,7 +42,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Everything in one place"
-                android:textColor="@color/text_secondary"
+                android:textColor="?attr/rdTextSecondary"
                 android:textSize="11sp" />
         </LinearLayout>
 
@@ -49,15 +50,95 @@
             android:id="@+id/chipSettingsEngine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_chip_green_soft"
+            android:background="?attr/rdChipBgSuccess"
             android:paddingStart="8dp"
             android:paddingTop="4dp"
             android:paddingEnd="8dp"
             android:paddingBottom="4dp"
             android:text="MultiTTS ✓"
-            android:textColor="@color/green"
+            android:textColor="?attr/rdOnSuccessChip"
             android:textSize="10.5sp"
             android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Level / streak / badges. Gone in Classic. -->
+    <LinearLayout
+        android:id="@+id/statStrip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="22dp"
+        android:background="?attr/rdCardBg"
+        android:orientation="horizontal"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvStatLevel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textAppearance="?attr/rdValueAppearance" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LEVEL"
+                android:textAppearance="?attr/rdSubtitleAppearance" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvStatStreak"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textAppearance="?attr/rdValueAppearance"
+                android:textColor="?attr/rdAccent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="STREAK"
+                android:textAppearance="?attr/rdSubtitleAppearance" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvStatBadges"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textAppearance="?attr/rdValueAppearance"
+                android:textColor="?attr/rdSuccessBright" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BADGES"
+                android:textAppearance="?attr/rdSubtitleAppearance" />
+        </LinearLayout>
     </LinearLayout>
 
     <ScrollView
@@ -106,6 +187,10 @@
             <TextView
                 style="@style/Readest.SettingsGroup"
                 android:text="READING · 阅读" />
+
+            <include
+                android:id="@+id/rowAppTheme"
+                layout="@layout/item_settings_row" />
 
             <include
                 android:id="@+id/rowDisplay"

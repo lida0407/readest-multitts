@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The three app themes.
+
+  Each supplies the complete rd* set declared in attrs_readest.xml plus the
+  Material 3 attributes its widgets need, so switching theme is one setTheme()
+  call and a recreate() — no view walks that go stale the moment a layout is
+  edited.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Everything the three share: window flags, sheet plumbing, base parent. -->
+    <style name="Theme.Readest.Base" parent="Theme.Material3.Light.NoActionBar">
+        <item name="bottomSheetDialogTheme">@style/Theme.Readest.BottomSheet</item>
+        <item name="android:windowBackground">?attr/rdBg</item>
+        <item name="android:colorBackground">?attr/rdBg</item>
+        <item name="android:statusBarColor">?attr/rdBg</item>
+        <item name="android:navigationBarColor">?attr/rdBg</item>
+    </style>
+
+    <style name="Theme.Readest.BottomSheet" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.Readest.BottomSheet</item>
+    </style>
+
+    <style name="Widget.Readest.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">?attr/rdPanel</item>
+        <item name="shapeAppearance">?attr/shapeAppearanceLargeComponent</item>
+    </style>
+
+    <!-- ══════════════════════ Classic ══════════════════════ -->
+    <style name="Theme.Readest.Classic" parent="Theme.Readest.Base">
+        <item name="rdBg">@color/bg_app</item>
+        <item name="rdPanel">@color/surface</item>
+        <item name="rdPanelSunk">@color/track</item>
+        <item name="rdShadow">@color/surface_border</item>
+        <item name="rdHeaderCard">@color/accent_tint</item>
+        <item name="rdOnHeaderCard">@color/text_primary</item>
+
+        <item name="rdOutline">@color/surface_border</item>
+        <item name="rdOutlineMuted">@color/surface_border</item>
+        <item name="rdDivider">@color/surface_border</item>
+
+        <item name="rdTextPrimary">@color/text_primary</item>
+        <item name="rdTextSecondary">@color/text_secondary</item>
+        <item name="rdTextTertiary">@color/text_tertiary</item>
+
+        <item name="rdAccent">@color/accent</item>
+        <item name="rdOnAccent">#FFFFFF</item>
+        <item name="rdOnChip">@color/accent_dark</item>
+        <item name="rdOnSuccessChip">@color/green</item>
+        <item name="rdXp">@color/accent</item>
+        <item name="rdInfo">@color/accent_dark</item>
+        <item name="rdInfoSoft">@color/accent_soft</item>
+        <item name="rdSuccess">@color/green</item>
+        <item name="rdSuccessBright">@color/green</item>
+        <item name="rdCachedTrack">@color/green_border</item>
+        <item name="rdDanger">@color/danger</item>
+        <item name="rdBadgeBg">@color/badge_epub</item>
+
+        <item name="rdBadgeEpub">@color/badge_epub</item>
+        <item name="rdBadgeTxt">@color/badge_txt</item>
+        <item name="rdBadgePdf">@color/badge_pdf</item>
+        <item name="rdBadgeMobi">@color/badge_mobi</item>
+
+        <item name="rdReaderPage">#FAFAFA</item>
+        <item name="rdReaderInk">#18181B</item>
+        <item name="rdSentenceHl">@color/accent_soft</item>
+        <item name="rdWordHl">@color/green_soft</item>
+
+        <item name="rdPanelBg">@drawable/rd_classic_panel</item>
+        <item name="rdHeaderBg">@drawable/rd_classic_panel</item>
+        <item name="rdCardBg">@drawable/rd_classic_card</item>
+        <item name="rdSunkBg">@drawable/rd_classic_sunk</item>
+        <item name="rdSheetBg">@drawable/rd_classic_panel</item>
+        <item name="rdChipBg">@drawable/rd_classic_chip</item>
+        <item name="rdChipBgSuccess">@drawable/rd_classic_chip_success</item>
+        <item name="rdChipBgMuted">@drawable/rd_classic_chip_muted</item>
+        <item name="rdButtonPrimaryBg">@drawable/rd_classic_button</item>
+        <item name="rdIconTileBg">@drawable/rd_classic_tile</item>
+        <item name="rdLogoBg">@drawable/rd_classic_logo</item>
+        <item name="rdDragHandleBg">@drawable/rd_classic_handle</item>
+        <item name="rdProgressDrawable">@drawable/rd_classic_progress</item>
+        <item name="rdCacheProgressDrawable">@drawable/rd_classic_cache_progress</item>
+        <item name="rdXpProgressDrawable">@drawable/rd_classic_xp</item>
+        <item name="rdSeekbarDrawable">@drawable/rd_classic_seekbar</item>
+        <item name="rdSeekbarThumb">@drawable/rd_classic_thumb</item>
+        <item name="rdBadgeBgShape">@drawable/rd_classic_badge</item>
+
+        <item name="rdDisplayAppearance">@style/TextAppearance.Classic.Display</item>
+        <item name="rdHeadingAppearance">@style/TextAppearance.Classic.Heading</item>
+        <item name="rdEyebrowAppearance">@style/TextAppearance.Classic.Eyebrow</item>
+        <item name="rdTitleAppearance">@style/TextAppearance.Classic.Title</item>
+        <item name="rdBodyAppearance">@style/TextAppearance.Classic.Body</item>
+        <item name="rdSubtitleAppearance">@style/TextAppearance.Classic.Subtitle</item>
+        <item name="rdValueAppearance">@style/TextAppearance.Classic.Value</item>
+        <item name="rdChipAppearance">@style/TextAppearance.Classic.Chip</item>
+        <item name="android:textViewStyle">@style/Widget.Readest.TextView.Classic</item>
+        <item name="materialButtonStyle">@style/Widget.Readest.Button.Classic</item>
+        <item name="rdFontHeading">@null</item>
+        <item name="rdFontBody">@null</item>
+
+        <!-- Material 3 -->
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorPrimaryContainer">@color/accent_soft</item>
+        <item name="colorOnPrimaryContainer">@color/accent_dark</item>
+        <item name="colorSecondaryContainer">@color/accent_soft</item>
+        <item name="colorOnSecondaryContainer">@color/accent_dark</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorSurfaceVariant">@color/track</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/surface_border</item>
+        <item name="colorError">@color/danger</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+    </style>
+
+    <!-- ══════════════════════ Pixel ══════════════════════ -->
+    <style name="Theme.Readest.Pixel" parent="Theme.Readest.Base">
+        <item name="rdBg">@color/px_bg</item>
+        <item name="rdPanel">@color/px_panel</item>
+        <item name="rdPanelSunk">@color/px_bg</item>
+        <item name="rdShadow">@color/px_panel_shadow</item>
+        <item name="rdHeaderCard">@color/px_panel</item>
+        <item name="rdOnHeaderCard">@color/px_accent</item>
+
+        <item name="rdOutline">@color/px_border</item>
+        <item name="rdOutlineMuted">@color/px_border_muted</item>
+        <item name="rdDivider">@color/px_border_muted</item>
+
+        <item name="rdTextPrimary">@color/px_border</item>
+        <item name="rdTextSecondary">@color/px_text_secondary</item>
+        <item name="rdTextTertiary">@color/px_border_muted</item>
+
+        <item name="rdAccent">@color/px_accent</item>
+        <item name="rdOnAccent">@color/px_accent_on</item>
+        <item name="rdOnChip">@color/px_border</item>
+        <item name="rdOnSuccessChip">@color/px_accent_on</item>
+        <item name="rdXp">@color/px_xp</item>
+        <item name="rdInfo">@color/px_info</item>
+        <item name="rdInfoSoft">@color/px_cached_track</item>
+        <item name="rdSuccess">@color/px_success</item>
+        <item name="rdSuccessBright">@color/px_success_bright</item>
+        <item name="rdCachedTrack">@color/px_cached_track</item>
+        <item name="rdDanger">@color/px_danger</item>
+        <item name="rdBadgeBg">@color/px_badge_bg</item>
+
+        <item name="rdBadgeEpub">@color/px_badge_epub</item>
+        <item name="rdBadgeTxt">@color/px_badge_txt</item>
+        <item name="rdBadgePdf">@color/px_badge_pdf</item>
+        <item name="rdBadgeMobi">@color/px_badge_mobi</item>
+
+        <item name="rdReaderPage">@color/px_reader_page</item>
+        <item name="rdReaderInk">@color/px_reader_ink</item>
+        <item name="rdSentenceHl">@color/px_accent</item>
+        <item name="rdWordHl">@color/px_info</item>
+
+        <item name="rdPanelBg">@drawable/rd_pixel_panel</item>
+        <item name="rdHeaderBg">@drawable/rd_pixel_panel</item>
+        <item name="rdCardBg">@drawable/rd_pixel_card</item>
+        <item name="rdSunkBg">@drawable/rd_pixel_sunk</item>
+        <item name="rdSheetBg">@drawable/rd_pixel_card</item>
+        <item name="rdChipBg">@drawable/rd_pixel_chip</item>
+        <item name="rdChipBgSuccess">@drawable/rd_pixel_chip_success</item>
+        <item name="rdChipBgMuted">@drawable/rd_pixel_chip_muted</item>
+        <item name="rdButtonPrimaryBg">@drawable/rd_pixel_button</item>
+        <item name="rdIconTileBg">@drawable/rd_pixel_tile</item>
+        <item name="rdLogoBg">@drawable/rd_pixel_logo</item>
+        <item name="rdDragHandleBg">@drawable/rd_pixel_handle</item>
+        <item name="rdProgressDrawable">@drawable/rd_pixel_progress</item>
+        <item name="rdCacheProgressDrawable">@drawable/rd_pixel_cache_progress</item>
+        <item name="rdXpProgressDrawable">@drawable/rd_pixel_xp</item>
+        <item name="rdSeekbarDrawable">@drawable/rd_pixel_seekbar</item>
+        <item name="rdSeekbarThumb">@drawable/rd_pixel_thumb</item>
+        <item name="rdBadgeBgShape">@drawable/rd_pixel_badge</item>
+
+        <item name="rdDisplayAppearance">@style/TextAppearance.Pixel.Display</item>
+        <item name="rdHeadingAppearance">@style/TextAppearance.Pixel.Heading</item>
+        <item name="rdEyebrowAppearance">@style/TextAppearance.Pixel.Eyebrow</item>
+        <item name="rdTitleAppearance">@style/TextAppearance.Pixel.Title</item>
+        <item name="rdBodyAppearance">@style/TextAppearance.Pixel.Body</item>
+        <item name="rdSubtitleAppearance">@style/TextAppearance.Pixel.Subtitle</item>
+        <item name="rdValueAppearance">@style/TextAppearance.Pixel.Value</item>
+        <item name="rdChipAppearance">@style/TextAppearance.Pixel.Chip</item>
+        <item name="android:textViewStyle">@style/Widget.Readest.TextView.Pixel</item>
+        <item name="materialButtonStyle">@style/Widget.Readest.Button.Pixel</item>
+        <item name="rdFontHeading">@font/press_start_2p</item>
+        <item name="rdFontBody">@font/vt323</item>
+
+        <item name="colorPrimary">@color/px_accent</item>
+        <item name="colorOnPrimary">@color/px_accent_on</item>
+        <item name="colorSecondary">@color/px_info</item>
+        <item name="colorPrimaryContainer">@color/px_panel</item>
+        <item name="colorOnPrimaryContainer">@color/px_border</item>
+        <item name="colorSecondaryContainer">@color/px_panel</item>
+        <item name="colorOnSecondaryContainer">@color/px_border</item>
+        <item name="colorSurface">@color/px_panel</item>
+        <item name="colorOnSurface">@color/px_border</item>
+        <item name="colorSurfaceVariant">@color/px_panel_shadow</item>
+        <item name="colorOnSurfaceVariant">@color/px_text_secondary</item>
+        <item name="colorOutline">@color/px_border</item>
+        <item name="colorError">@color/px_danger</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+    </style>
+
+    <!-- ══════════════════════ Cozy ══════════════════════ -->
+    <style name="Theme.Readest.Cozy" parent="Theme.Readest.Base">
+        <item name="rdBg">@color/cz_bg</item>
+        <item name="rdPanel">@color/cz_surface</item>
+        <item name="rdPanelSunk">@color/cz_bg</item>
+        <item name="rdShadow">@color/cz_ink</item>
+        <item name="rdHeaderCard">@color/cz_sun</item>
+        <item name="rdOnHeaderCard">@color/cz_ink</item>
+
+        <item name="rdOutline">@color/cz_ink</item>
+        <item name="rdOutlineMuted">@color/cz_outline_muted</item>
+        <item name="rdDivider">@color/cz_divider</item>
+
+        <item name="rdTextPrimary">@color/cz_ink</item>
+        <item name="rdTextSecondary">@color/cz_ink_muted</item>
+        <item name="rdTextTertiary">@color/cz_outline_muted</item>
+
+        <item name="rdAccent">@color/cz_coral</item>
+        <item name="rdOnAccent">@color/cz_on_dark</item>
+        <item name="rdOnChip">@color/cz_ink</item>
+        <item name="rdOnSuccessChip">@color/cz_on_dark</item>
+        <item name="rdXp">@color/cz_leaf</item>
+        <item name="rdInfo">@color/cz_sky</item>
+        <item name="rdInfoSoft">@color/cz_sky_soft</item>
+        <item name="rdSuccess">@color/cz_leaf</item>
+        <item name="rdSuccessBright">@color/cz_leaf</item>
+        <item name="rdCachedTrack">@color/cz_sky_soft</item>
+        <item name="rdDanger">@color/cz_coral</item>
+        <item name="rdBadgeBg">@color/cz_lilac</item>
+
+        <item name="rdBadgeEpub">@color/cz_sky</item>
+        <item name="rdBadgeTxt">@color/cz_leaf</item>
+        <item name="rdBadgePdf">@color/cz_coral</item>
+        <item name="rdBadgeMobi">@color/cz_sun</item>
+
+        <item name="rdReaderPage">@color/cz_reader_page</item>
+        <item name="rdReaderInk">@color/cz_ink</item>
+        <item name="rdSentenceHl">@color/cz_sun</item>
+        <item name="rdWordHl">@color/cz_sky_soft</item>
+
+        <item name="rdPanelBg">@drawable/rd_cozy_panel</item>
+        <item name="rdHeaderBg">@drawable/rd_cozy_header</item>
+        <item name="rdCardBg">@drawable/rd_cozy_card</item>
+        <item name="rdSunkBg">@drawable/rd_cozy_sunk</item>
+        <item name="rdSheetBg">@drawable/rd_cozy_card</item>
+        <item name="rdChipBg">@drawable/rd_cozy_chip</item>
+        <item name="rdChipBgSuccess">@drawable/rd_cozy_chip_success</item>
+        <item name="rdChipBgMuted">@drawable/rd_cozy_chip_muted</item>
+        <item name="rdButtonPrimaryBg">@drawable/rd_cozy_button</item>
+        <item name="rdIconTileBg">@drawable/rd_cozy_tile</item>
+        <item name="rdLogoBg">@drawable/rd_cozy_logo</item>
+        <item name="rdDragHandleBg">@drawable/rd_cozy_handle</item>
+        <item name="rdProgressDrawable">@drawable/rd_cozy_progress</item>
+        <item name="rdCacheProgressDrawable">@drawable/rd_cozy_cache_progress</item>
+        <item name="rdXpProgressDrawable">@drawable/rd_cozy_xp</item>
+        <item name="rdSeekbarDrawable">@drawable/rd_cozy_seekbar</item>
+        <item name="rdSeekbarThumb">@drawable/rd_cozy_thumb</item>
+        <item name="rdBadgeBgShape">@drawable/rd_cozy_badge</item>
+
+        <item name="rdDisplayAppearance">@style/TextAppearance.Cozy.Display</item>
+        <item name="rdHeadingAppearance">@style/TextAppearance.Cozy.Heading</item>
+        <item name="rdEyebrowAppearance">@style/TextAppearance.Cozy.Eyebrow</item>
+        <item name="rdTitleAppearance">@style/TextAppearance.Cozy.Title</item>
+        <item name="rdBodyAppearance">@style/TextAppearance.Cozy.Body</item>
+        <item name="rdSubtitleAppearance">@style/TextAppearance.Cozy.Subtitle</item>
+        <item name="rdValueAppearance">@style/TextAppearance.Cozy.Value</item>
+        <item name="rdChipAppearance">@style/TextAppearance.Cozy.Chip</item>
+        <item name="android:textViewStyle">@style/Widget.Readest.TextView.Cozy</item>
+        <item name="materialButtonStyle">@style/Widget.Readest.Button.Cozy</item>
+        <item name="rdFontHeading">@font/fredoka_bold</item>
+        <item name="rdFontBody">@font/nunito_bold</item>
+
+        <item name="colorPrimary">@color/cz_coral</item>
+        <item name="colorOnPrimary">@color/cz_on_dark</item>
+        <item name="colorSecondary">@color/cz_leaf</item>
+        <item name="colorPrimaryContainer">@color/cz_sun</item>
+        <item name="colorOnPrimaryContainer">@color/cz_ink</item>
+        <item name="colorSecondaryContainer">@color/cz_sky_soft</item>
+        <item name="colorOnSecondaryContainer">@color/cz_ink</item>
+        <item name="colorSurface">@color/cz_surface</item>
+        <item name="colorOnSurface">@color/cz_ink</item>
+        <item name="colorSurfaceVariant">@color/cz_divider</item>
+        <item name="colorOnSurfaceVariant">@color/cz_ink_muted</item>
+        <item name="colorOutline">@color/cz_ink</item>
+        <item name="colorError">@color/cz_coral</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+    </style>
+
+</resources>

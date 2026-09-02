@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A white rect with a dark keyline: the pixel language has no circles. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="?attr/rdOutline" />
+    <stroke android:width="2dp" android:color="?attr/rdBg" />
+    <size android:width="14dp" android:height="18dp" />
+</shape>

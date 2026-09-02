@@ -26,6 +26,7 @@ class SettingsBottomSheet(
     private val onOpenDictionaries: () -> Unit,
     private val onOpenTranslate: () -> Unit,
     private val onOpenDisplay: () -> Unit,
+    private val onOpenAppTheme: () -> Unit,
     private val onOpenShelfOrder: () -> Unit,
     private val onCheckUpdate: () -> Unit,
     private val onOpenReleases: () -> Unit
@@ -42,7 +43,15 @@ class SettingsBottomSheet(
         val translateTarget: String,
         val display: String,
         val shelfOrder: String,
-        val version: String
+        val version: String,
+        val appTheme: String,
+        val voiceRowLabel: String,
+        val offlineRowLabel: String,
+        val displayRowLabel: String,
+        val shelfRowLabel: String,
+        val title: String,
+        /** Level, streak and badge count, or null in a theme without them. */
+        val stats: Triple<Int, Int, Int>?
     )
 
     private var _binding: BottomSheetSettingsBinding? = null
@@ -66,17 +75,26 @@ class SettingsBottomSheet(
         super.onViewCreated(view, savedInstanceState)
 
         binding.chipSettingsEngine.text = if (summary.engineInstalled) "MultiTTS ✓" else "System TTS"
+        binding.tvSettingsTitle.text = summary.title
         binding.tvSettingsSubtitle.text = "Readest++ ${summary.version}"
 
-        row(binding.rowVoice, "🔊", "Voice & playback", "${summary.voice} · ${summary.rate}", onOpenVoice)
+        summary.stats?.let { (level, streak, badges) ->
+            binding.statStrip.visibility = View.VISIBLE
+            binding.tvStatLevel.text = level.toString()
+            binding.tvStatStreak.text = streak.toString()
+            binding.tvStatBadges.text = badges.toString()
+        }
+
+        row(binding.rowVoice, "🔊", summary.voiceRowLabel, "${summary.voice} · ${summary.rate}", onOpenVoice)
         row(binding.rowEngine, "★", "Speech engine", summary.engineLabel, onOpenEngine)
-        row(binding.rowCache, "⚡", "Offline audio", summary.cache, onOpenCache)
+        row(binding.rowCache, "⚡", summary.offlineRowLabel, summary.cache, onOpenCache)
 
         row(binding.rowDictionaries, "📚", "Dictionaries", summary.dictionaries, onOpenDictionaries)
         row(binding.rowTranslate, "🌐", "Translation language", summary.translateTarget, onOpenTranslate)
 
-        row(binding.rowDisplay, "🎨", "Display & themes", summary.display, onOpenDisplay)
-        row(binding.rowShelfOrder, "🗂", "Shelf order", summary.shelfOrder, onOpenShelfOrder)
+        row(binding.rowAppTheme, "🎮", "App theme · 主题", summary.appTheme, onOpenAppTheme)
+        row(binding.rowDisplay, "🎨", summary.displayRowLabel, summary.display, onOpenDisplay)
+        row(binding.rowShelfOrder, "🗂", summary.shelfRowLabel, summary.shelfOrder, onOpenShelfOrder)
 
         row(binding.rowUpdate, "⬆️", "Check for updates", summary.version, onCheckUpdate)
         row(binding.rowReleases, "🔗", "Releases on GitHub", "Release notes and older builds", onOpenReleases)
