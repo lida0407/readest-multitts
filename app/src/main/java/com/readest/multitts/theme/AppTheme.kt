@@ -21,21 +21,21 @@ enum class AppTheme(
         id = "classic",
         styleRes = R.style.Theme_Readest_Classic,
         label = "Classic · 经典",
-        blurb = "The plain reader: royal blue on white.",
+        blurb = "Royal blue on white",
         words = Words.CLASSIC
     ),
     PIXEL(
         id = "pixel",
         styleRes = R.style.Theme_Readest_Pixel,
         label = "Pixel · 像素",
-        blurb = "Retro RPG. Books are quests, chapters are dungeon floors.",
+        blurb = "Retro RPG · dungeon floors",
         words = Words.PIXEL
     ),
     COZY(
         id = "cozy",
         styleRes = R.style.Theme_Readest_Cozy,
         label = "Cozy · 温暖",
-        blurb = "A warm walk. Books are trails, chapters are stepping stones.",
+        blurb = "A warm walk · stepping stones",
         words = Words.COZY
     );
 

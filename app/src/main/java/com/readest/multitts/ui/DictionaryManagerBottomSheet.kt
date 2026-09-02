@@ -15,6 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.readest.multitts.databinding.BottomSheetDictionariesBinding
 import com.readest.multitts.databinding.ItemDictionaryBinding
 import com.readest.multitts.dict.DictionaryStore
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
  * Add, enable and remove dictionary files.
@@ -92,7 +93,7 @@ class DictionaryManagerBottomSheet(
                 post {
                     importing = false
                     showProgress(false, null)
-                    AlertDialog.Builder(requireContext())
+                    MaterialAlertDialogBuilder(requireContext())
                         .setTitle("Couldn't add that dictionary")
                         .setMessage(e.message ?: "Unknown problem")
                         .setPositiveButton("OK", null)
@@ -138,7 +139,7 @@ class DictionaryManagerBottomSheet(
                 store.setEnabled(item.id, checked)
             }
             holder.binding.btnDeleteDict.setOnClickListener {
-                AlertDialog.Builder(requireContext())
+                MaterialAlertDialogBuilder(requireContext())
                     .setTitle("Delete ${item.name}?")
                     .setMessage("Removes the dictionary file and its index, freeing ${formatBytes(item.bytes)}.")
                     .setPositiveButton("Delete") { _, _ ->

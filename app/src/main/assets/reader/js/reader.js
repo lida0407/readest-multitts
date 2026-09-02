@@ -129,7 +129,16 @@
         hint._timer = setTimeout(() => hint.classList.remove('visible'), 1100);
     }
 
+    // What the current app theme calls a chapter, e.g. "Ch", "FLOOR", "Stone".
+    var chapterWord = 'Ch';
+
     window.ReaderApp = {
+
+        setChapterWord: function (word) {
+            chapterWord = word || 'Ch';
+            ReaderApp.updatePageFooter();
+        },
+
         loadChapterData: function (dataJson) {
             try {
                 const data = typeof dataJson === 'string' ? JSON.parse(dataJson) : dataJson;
@@ -252,13 +261,13 @@
             } else {
                 document.getElementById('footer-chapter-title').innerText = currentChapterTitle;
                 document.getElementById('footer-page-info').innerText =
-                    `Ch ${currentChapterIndex + 1} / ${totalChapters}`;
+                    `${chapterWord} ${currentChapterIndex + 1} / ${totalChapters}`;
             }
         },
 
         updatePageFooter: function () {
             document.getElementById('footer-chapter-title').innerText = currentChapterTitle;
-            document.getElementById('footer-page-info').innerText = `Page ${currentPageIndex + 1} / ${totalPagesInChapter} • Ch ${currentChapterIndex + 1}/${totalChapters}`;
+            document.getElementById('footer-page-info').innerText = `Page ${currentPageIndex + 1} / ${totalPagesInChapter} • ${chapterWord} ${currentChapterIndex + 1}/${totalChapters}`;
         },
 
         nextPage: function () {

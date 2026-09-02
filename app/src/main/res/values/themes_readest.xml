@@ -96,6 +96,7 @@
         <item name="rdChipAppearance">@style/TextAppearance.Classic.Chip</item>
         <item name="android:textViewStyle">@style/Widget.Readest.TextView.Classic</item>
         <item name="materialButtonStyle">@style/Widget.Readest.Button.Classic</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Readest.Dialog.Classic</item>
         <item name="rdFontHeading">@null</item>
         <item name="rdFontBody">@null</item>
 
@@ -186,6 +187,7 @@
         <item name="rdChipAppearance">@style/TextAppearance.Pixel.Chip</item>
         <item name="android:textViewStyle">@style/Widget.Readest.TextView.Pixel</item>
         <item name="materialButtonStyle">@style/Widget.Readest.Button.Pixel</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Readest.Dialog.Pixel</item>
         <item name="rdFontHeading">@font/press_start_2p</item>
         <item name="rdFontBody">@font/vt323</item>
 
@@ -197,6 +199,8 @@
         <item name="colorSecondaryContainer">@color/px_panel</item>
         <item name="colorOnSecondaryContainer">@color/px_border</item>
         <item name="colorSurface">@color/px_panel</item>
+        <item name="colorSurfaceContainerHigh">@color/px_panel</item>
+        <item name="colorSurfaceContainer">@color/px_panel</item>
         <item name="colorOnSurface">@color/px_border</item>
         <item name="colorSurfaceVariant">@color/px_panel_shadow</item>
         <item name="colorOnSurfaceVariant">@color/px_text_secondary</item>
@@ -275,6 +279,7 @@
         <item name="rdChipAppearance">@style/TextAppearance.Cozy.Chip</item>
         <item name="android:textViewStyle">@style/Widget.Readest.TextView.Cozy</item>
         <item name="materialButtonStyle">@style/Widget.Readest.Button.Cozy</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Readest.Dialog.Cozy</item>
         <item name="rdFontHeading">@font/fredoka_bold</item>
         <item name="rdFontBody">@font/nunito_bold</item>
 
@@ -286,6 +291,8 @@
         <item name="colorSecondaryContainer">@color/cz_sky_soft</item>
         <item name="colorOnSecondaryContainer">@color/cz_ink</item>
         <item name="colorSurface">@color/cz_surface</item>
+        <item name="colorSurfaceContainerHigh">@color/cz_surface</item>
+        <item name="colorSurfaceContainer">@color/cz_surface</item>
         <item name="colorOnSurface">@color/cz_ink</item>
         <item name="colorSurfaceVariant">@color/cz_divider</item>
         <item name="colorOnSurfaceVariant">@color/cz_ink_muted</item>
@@ -295,4 +302,41 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
     </style>
 
+    <!-- Dialogs follow the theme too. Without these a Pixel reader gets a
+         Material-white alert in the middle of a Sweetie-16 screen. -->
+    <style name="ThemeOverlay.Readest.Dialog.Classic" parent="ThemeOverlay.Material3.MaterialAlertDialog" />
+
+    <style name="ThemeOverlay.Readest.Dialog.Pixel" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/px_panel</item>
+        <item name="colorSurfaceContainerHigh">@color/px_panel</item>
+        <item name="colorSurfaceContainer">@color/px_panel</item>
+        <item name="colorOnSurface">@color/px_border</item>
+        <item name="colorPrimary">@color/px_accent</item>
+        <item name="android:textColorPrimary">@color/px_border</item>
+        <item name="android:textColorSecondary">@color/px_text_secondary</item>
+        <item name="android:textViewStyle">@style/Widget.Readest.TextView.Pixel</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Readest.Dialog.Square</item>
+    </style>
+
+    <style name="ThemeOverlay.Readest.Dialog.Cozy" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/cz_surface</item>
+        <item name="colorSurfaceContainerHigh">@color/cz_surface</item>
+        <item name="colorSurfaceContainer">@color/cz_surface</item>
+        <item name="colorOnSurface">@color/cz_ink</item>
+        <item name="colorPrimary">@color/cz_coral</item>
+        <item name="android:textColorPrimary">@color/cz_ink</item>
+        <item name="android:textColorSecondary">@color/cz_ink_muted</item>
+        <item name="android:textViewStyle">@style/Widget.Readest.TextView.Cozy</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Readest.Dialog.Round</item>
+    </style>
+
+    <style name="ShapeAppearance.Readest.Dialog.Square" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">0dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Readest.Dialog.Round" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">24dp</item>
+    </style>
 </resources>

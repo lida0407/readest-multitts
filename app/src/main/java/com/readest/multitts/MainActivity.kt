@@ -58,6 +58,7 @@ import com.readest.multitts.update.UpdateInstaller
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Locale
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventListener {
 
@@ -300,9 +301,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
 
         if (gamified) {
             binding.tvHeroStreak.text = words.streak(game.streakDays)
-            val (into, span) = game.levelProgress
-            binding.pbXp.max = span.coerceAtLeast(1L).toInt()
-            binding.pbXp.progress = into.toInt()
+            setXpBar()
             binding.tvXpValue.text = "Lv ${game.level} · ${game.totalXp}"
             binding.tvXpLabel.text = if (appTheme == AppTheme.PIXEL) "XP" else "♥"
         } else {
@@ -310,13 +309,25 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         }
     }
 
+    /**
+     * A fixed 0-1000 track, like every other bar here.
+     *
+     * Setting max to the level's own span left the bar full at zero: a small max
+     * assigned before the view is attached does not survive to the drawable's
+     * clip level, and the clip stays where inflation left it.
+     */
+    private fun setXpBar() {
+        val (into, span) = game.levelProgress
+        binding.pbXp.max = 1000
+        binding.pbXp.progress =
+            if (span <= 0L) 0 else ((into * 1000L) / span).toInt().coerceIn(0, 1000)
+    }
+
     /** The header's level bar and the shelf's per-book totals move as you read. */
     private fun refreshGameHeader() {
         if (appTheme == AppTheme.CLASSIC) return
         binding.tvHeroStreak.text = words.streak(game.streakDays)
-        val (into, span) = game.levelProgress
-        binding.pbXp.max = span.coerceAtLeast(1L).toInt()
-        binding.pbXp.progress = into.toInt()
+        setXpBar()
         binding.tvXpValue.text = "Lv ${game.level} · ${game.totalXp}"
     }
 
@@ -766,6 +777,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         binding.libraryContainer.visibility = View.GONE
         binding.readerWebView.visibility = View.VISIBLE
         binding.appBarLayout.visibility = View.VISIBLE
+        binding.topToolbar.visibility = View.VISIBLE
         binding.btnBack.visibility = View.VISIBLE
         binding.btnReaderSettings.visibility = View.VISIBLE
         binding.btnContents.visibility = View.VISIBLE
@@ -783,7 +795,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     private fun showLibraryView() {
         binding.readerWebView.visibility = View.GONE
         binding.libraryContainer.visibility = View.VISIBLE
-        binding.appBarLayout.visibility = View.GONE
+        binding.topToolbar.visibility = View.GONE
         binding.btnBack.visibility = View.GONE
         binding.btnReaderSettings.visibility = View.GONE
         binding.btnContents.visibility = View.GONE
@@ -1009,7 +1021,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     private fun showAppThemePicker() {
         val themes = AppTheme.entries
         val labels = themes.map { "${it.label}\n${it.blurb}" }.toTypedArray()
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("App theme · 主题")
             .setSingleChoiceItems(labels, themes.indexOf(appTheme)) { dialog, which ->
                 dialog.dismiss()
@@ -1039,7 +1051,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             SORT_TITLE to "Title A–Z · 书名",
             SORT_ADDED to "Recently added · 最近添加"
         )
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Shelf order")
             .setSingleChoiceItems(
                 options.map { it.second }.toTypedArray(),
@@ -1058,7 +1070,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     private fun showTranslateTargetPicker() {
         val current = prefs.getString("translate_target", null) ?: Translator.deviceLanguage()
         val targets = Translator.COMMON_TARGETS
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle("Translate words into")
             .setSingleChoiceItems(
                 targets.map { it.second }.toTypedArray(),
@@ -1180,7 +1192,14 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     }
 
     // Reader Bridge Callbacks
+    /** The word the theme uses for a chapter, for the page's own furniture. */
+    private fun pushChapterWord() {
+        val word = words.chapterShort(1).substringBefore(" 1").trim().ifEmpty { "Ch" }
+        binding.readerWebView.evaluateJavascript("ReaderApp.setChapterWord('$word')", null)
+    }
+
     override fun onReaderReady() {
+        runOnUiThread { pushChapterWord() }
         if (chaptersList.isNotEmpty()) {
             runOnUiThread { loadCurrentChapterIntoWebView() }
         }
@@ -1308,7 +1327,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     override fun toggleToolbars() {
         runOnUiThread {
             areToolbarsVisible = !areToolbarsVisible
-            binding.appBarLayout.visibility = if (areToolbarsVisible) View.VISIBLE else View.GONE
+            binding.topToolbar.visibility = if (areToolbarsVisible) View.VISIBLE else View.GONE
             binding.ttsMiniPlayerCard.visibility = if (areToolbarsVisible) View.VISIBLE else View.GONE
             pushReaderBottomInset()
         }
@@ -1417,14 +1436,14 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
                 binding.btnCheckUpdate.text = versionChipLabel()
                 when (result) {
                     is UpdateChecker.Result.UpToDate ->
-                        androidx.appcompat.app.AlertDialog.Builder(this)
+                        MaterialAlertDialogBuilder(this)
                             .setTitle("You're up to date")
                             .setMessage("v$current is the newest release on GitHub.")
                             .setPositiveButton("OK", null)
                             .show()
 
                     is UpdateChecker.Result.Failed ->
-                        androidx.appcompat.app.AlertDialog.Builder(this)
+                        MaterialAlertDialogBuilder(this)
                             .setTitle("Couldn't check for updates")
                             .setMessage("${result.reason}\n\nYou can also look at the releases page in a browser.")
                             .setPositiveButton("Open releases") { _, _ -> openReleasesPage() }
@@ -1440,7 +1459,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     private fun showUpdateAvailable(result: UpdateChecker.Result.Available) {
         val release = result.release
         val notes = if (release.notes.isBlank()) "" else "\n\n${release.notes}"
-        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        val builder = MaterialAlertDialogBuilder(this)
             .setTitle("Update available: v${release.version}")
             .setMessage("You have v${result.current}, released ${release.publishedAt}.$notes")
             .setNegativeButton("Later", null)
@@ -1475,7 +1494,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             addView(statusView)
         }
 
-        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle("Downloading v${release.version}")
             .setView(container)
             .setCancelable(false)
@@ -1512,7 +1531,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
 
             override fun onError(message: String) {
                 dialog.dismiss()
-                androidx.appcompat.app.AlertDialog.Builder(this@MainActivity)
+                MaterialAlertDialogBuilder(this@MainActivity)
                     .setTitle("Download failed")
                     .setMessage(message)
                     .setPositiveButton("Open releases") { _, _ -> openReleasesPage() }

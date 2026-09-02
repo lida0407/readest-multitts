@@ -20,6 +20,7 @@ import com.readest.multitts.tts.AudioExporter
 import com.readest.multitts.tts.CacheResolver
 import com.readest.multitts.tts.TTSLocalAudioCache
 import java.io.File
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /**
  * Lets the reader see what offline audio is taking up space, delete it per book,
@@ -58,7 +59,7 @@ class CacheManagerBottomSheet(
         binding.rvCacheBooks.layoutManager = LinearLayoutManager(requireContext())
 
         binding.btnClearAllCache.setOnClickListener {
-            AlertDialog.Builder(requireContext())
+            MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Delete all offline audio?")
                 .setMessage("Removes ${audioCache.getFormattedCacheSize()} of cached narration for every book. Exported files in Music are not affected.")
                 .setPositiveButton("Delete all") { _, _ ->
@@ -98,7 +99,7 @@ class CacheManagerBottomSheet(
     }
 
     private fun confirmDelete(row: Row) {
-        AlertDialog.Builder(requireContext())
+        MaterialAlertDialogBuilder(requireContext())
             .setTitle("Delete offline audio?")
             .setMessage("Frees ${audioCache.formatBytes(row.bytes)} for “${row.title}”. The book itself stays in your library.")
             .setPositiveButton("Delete") { _, _ ->
