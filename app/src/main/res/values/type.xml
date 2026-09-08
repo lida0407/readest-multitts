@@ -161,4 +161,54 @@
         <item name="android:textAllCaps">false</item>
         <item name="cornerRadius">99dp</item>
     </style>
+    <!--
+      Sliders.
+
+      Material 3's default is a 4dp-wide, 44dp-tall bar thumb with a tick mark
+      per step; on a 0.5-3.0 speed slider that is 26 dots and a shape that reads
+      as broken rather than as a control. Each theme gets a thumb in its own
+      language instead, and the ticks are off.
+    -->
+    <style name="Widget.Readest.Slider.Classic" parent="Widget.Material3.Slider">
+        <item name="tickVisible">false</item>
+        <item name="thumbWidth">18dp</item>
+        <item name="thumbHeight">18dp</item>
+        <item name="thumbTrackGapSize">0dp</item>
+        <item name="trackHeight">6dp</item>
+        <item name="thumbColor">?attr/rdAccent</item>
+        <item name="trackColorActive">?attr/rdAccent</item>
+        <item name="trackColorInactive">?attr/rdPanelSunk</item>
+        <item name="haloColor">?attr/rdInfoSoft</item>
+    </style>
+
+    <style name="Widget.Readest.Slider.Pixel" parent="Widget.Material3.Slider">
+        <item name="tickVisible">false</item>
+        <!-- A tall rectangle, the closest a Material slider gets to the
+             design's 14x18 white block. -->
+        <item name="thumbWidth">14dp</item>
+        <item name="thumbHeight">20dp</item>
+        <item name="thumbTrackGapSize">0dp</item>
+        <item name="trackInsideCornerSize">0dp</item>
+        <item name="trackHeight">10dp</item>
+        <item name="thumbColor">?attr/rdOutline</item>
+        <item name="thumbStrokeColor">?attr/rdBg</item>
+        <item name="thumbStrokeWidth">2dp</item>
+        <item name="trackColorActive">?attr/rdAccent</item>
+        <item name="trackColorInactive">?attr/rdBg</item>
+        <item name="haloColor">?attr/rdCachedTrack</item>
+    </style>
+
+    <style name="Widget.Readest.Slider.Cozy" parent="Widget.Material3.Slider">
+        <item name="tickVisible">false</item>
+        <item name="thumbWidth">22dp</item>
+        <item name="thumbHeight">22dp</item>
+        <item name="thumbTrackGapSize">0dp</item>
+        <item name="trackHeight">12dp</item>
+        <item name="thumbColor">?attr/rdAccent</item>
+        <item name="thumbStrokeColor">?attr/rdOutline</item>
+        <item name="thumbStrokeWidth">2.5dp</item>
+        <item name="trackColorActive">?attr/rdSuccess</item>
+        <item name="trackColorInactive">?attr/rdBg</item>
+        <item name="haloColor">?attr/rdInfoSoft</item>
+    </style>
 </resources>

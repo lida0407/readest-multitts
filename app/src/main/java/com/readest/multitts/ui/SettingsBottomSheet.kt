@@ -57,6 +57,21 @@ class SettingsBottomSheet(
     private var _binding: BottomSheetSettingsBinding? = null
     private val binding get() = _binding!!
 
+    private var shown: Summary = summary
+
+    /**
+     * Replaces the figures that took a moment to work out.
+     *
+     * Measuring the audio cache means walking tens of thousands of files, so
+     * the sheet opens on what is already known and this fills in the rest.
+     * Safe to call after the sheet has gone: it is a no-op without a binding.
+     */
+    fun update(newSummary: Summary) {
+        shown = newSummary
+        if (_binding == null) return
+        render()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = BottomSheetSettingsBinding.inflate(inflater, container, false)
         return binding.root
@@ -73,7 +88,12 @@ class SettingsBottomSheet(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        render()
+        ClickFeedback.applyToTree(view)
+    }
 
+    private fun render() {
+        val summary = shown
         binding.chipSettingsEngine.text = if (summary.engineInstalled) "MultiTTS ✓" else "System TTS"
         binding.tvSettingsTitle.text = summary.title
         binding.tvSettingsSubtitle.text = "Readest++ ${summary.version}"
@@ -98,8 +118,6 @@ class SettingsBottomSheet(
 
         row(binding.rowUpdate, "⬆️", "Check for updates", summary.version, onCheckUpdate)
         row(binding.rowReleases, "🔗", "Releases on GitHub", "Release notes and older builds", onOpenReleases)
-
-        ClickFeedback.applyToTree(view)
     }
 
     /** Dismisses first so the panel it opens is the only sheet on screen. */

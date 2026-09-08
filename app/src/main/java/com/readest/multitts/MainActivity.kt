@@ -585,6 +585,10 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
 
     /** Fills the secondary track with the share of this chapter already cached. */
     private fun refreshCachedAhead() {
+        // Level the track before any early return: the layer is drawn full
+        // until something sets it, so a chapter we never measure would claim
+        // to be entirely cached.
+        setCachedAhead(0)
         val book = currentBook ?: return
         val sentences = currentSentences
         val chapterIndex = currentChapterIndex
@@ -597,10 +601,23 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             val percent = cached * 1000 / sentences.size
             runOnUiThread {
                 if (currentChapterIndex == chapterIndex) {
-                    binding.sliderTtsProgress.secondaryProgress = percent
+                    setCachedAhead(percent)
                 }
             }
         }.start()
+    }
+
+    /**
+     * Fills the cached-ahead track and restates the legend under it.
+     *
+     * The count arrives from a background scan well after the scrubber first
+     * draws, so the legend has to be rewritten here — reading it off the bar at
+     * scrub time reported whatever was known before the scan landed, which on a
+     * fully cached chapter meant a full blue track labelled "0%".
+     */
+    private fun setCachedAhead(permille: Int) {
+        binding.sliderTtsProgress.secondaryProgress = permille
+        binding.tvScrubberLabel.text = scrubberLabel(visibleSentenceIndex)
     }
 
     private fun openFilePicker() {
@@ -774,6 +791,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     }
 
     private fun showReaderView() {
+        setCachedAhead(0)
         binding.libraryContainer.visibility = View.GONE
         binding.readerWebView.visibility = View.VISIBLE
         binding.appBarLayout.visibility = View.VISIBLE
@@ -951,6 +969,36 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
      * a setting has exactly one implementation and one source of truth.
      */
     private fun showSettingsSheet() {
+        val sheet = SettingsBottomSheet(
+            summary = settingsSummary(cacheBytes = audioCache.peekTotalCacheSizeBytes()),
+            onOpenVoice = { showTtsBottomSheet() },
+            onOpenEngine = { MultiTTSDownloadDialog(this) { setupTTS() }.show() },
+            onOpenCache = { showCacheManager() },
+            onOpenDictionaries = { showDictionaryManager() },
+            onOpenTranslate = { showTranslateTargetPicker() },
+            onOpenDisplay = { showReaderSettingsBottomSheet() },
+            onOpenAppTheme = { showAppThemePicker() },
+            onOpenShelfOrder = { showSortChooser() },
+            onCheckUpdate = { checkForUpdate() },
+            onOpenReleases = { openReleasesPage() }
+        )
+        sheet.show(supportFragmentManager, "settings")
+
+        // Measuring the audio cache walks tens of thousands of files. The sheet
+        // opens on the last known figure and this replaces it once counted.
+        Thread {
+            val bytes = audioCache.getTotalCacheSizeBytes()
+            runOnUiThread { sheet.update(settingsSummary(bytes)) }
+        }.start()
+    }
+
+    /**
+     * What each row shows.
+     *
+     * [cacheBytes] is null until the cache has been measured, which is why the
+     * row can read "Counting…" for a moment rather than freezing the tap.
+     */
+    private fun settingsSummary(cacheBytes: Long?): SettingsBottomSheet.Summary {
         val multiPkg = MultiTTSManager.getInstalledMultiTTSPackage(this)
         val engines = MultiTTSManager.getAvailableTTSEngines(this, null)
         val engineLabel = engines.firstOrNull { it.packageName == ttsController.currentEnginePackage }?.label
@@ -977,41 +1025,30 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         val themeLabel = currentTheme.removePrefix("theme-").replaceFirstChar { it.uppercase() }
         val modeLabel = if (currentReadingMode == "scroll") "scroll" else "page by page"
 
-        SettingsBottomSheet(
-            summary = SettingsBottomSheet.Summary(
-                engineLabel = engineLabel,
-                engineInstalled = multiPkg != null,
-                voice = voiceLabel,
-                rate = String.format(Locale.US, "%.1fx", ttsController.currentRate),
-                cache = "${audioCache.getFormattedCacheSize()} of offline audio",
-                dictionaries = dictLabel,
-                translateTarget = targetLabel,
-                display = "$themeLabel · ${currentFontSize}px · $modeLabel",
-                shelfOrder = sortLabel().removeSuffix(" ▾"),
-                version = versionLabel(),
-                appTheme = appTheme.label,
-                voiceRowLabel = words.voice,
-                offlineRowLabel = words.offlineAudio,
-                displayRowLabel = words.display,
-                shelfRowLabel = words.shelfOrder,
-                title = words.settings,
-                stats = if (appTheme == AppTheme.CLASSIC) null else Triple(
-                    game.level,
-                    game.streakDays,
-                    game.badges(audioCache.getTotalCacheSizeBytes()).size
-                )
-            ),
-            onOpenVoice = { showTtsBottomSheet() },
-            onOpenEngine = { MultiTTSDownloadDialog(this) { setupTTS() }.show() },
-            onOpenCache = { showCacheManager() },
-            onOpenDictionaries = { showDictionaryManager() },
-            onOpenTranslate = { showTranslateTargetPicker() },
-            onOpenDisplay = { showReaderSettingsBottomSheet() },
-            onOpenAppTheme = { showAppThemePicker() },
-            onOpenShelfOrder = { showSortChooser() },
-            onCheckUpdate = { checkForUpdate() },
-            onOpenReleases = { openReleasesPage() }
-        ).show(supportFragmentManager, "settings")
+        return SettingsBottomSheet.Summary(
+            engineLabel = engineLabel,
+            engineInstalled = multiPkg != null,
+            voice = voiceLabel,
+            rate = String.format(Locale.US, "%.1fx", ttsController.currentRate),
+            cache = if (cacheBytes == null) "Counting…"
+                    else "${audioCache.formatBytes(cacheBytes)} of offline audio",
+            dictionaries = dictLabel,
+            translateTarget = targetLabel,
+            display = "$themeLabel · ${currentFontSize}px · $modeLabel",
+            shelfOrder = sortLabel().removeSuffix(" ▾"),
+            version = versionLabel(),
+            appTheme = appTheme.label,
+            voiceRowLabel = words.voice,
+            offlineRowLabel = words.offlineAudio,
+            displayRowLabel = words.display,
+            shelfRowLabel = words.shelfOrder,
+            title = words.settings,
+            stats = if (appTheme == AppTheme.CLASSIC) null else Triple(
+                game.level,
+                game.streakDays,
+                game.badges(cacheBytes ?: 0L).size
+            )
+        )
     }
 
     /**
@@ -1137,6 +1174,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             audioCache = audioCache,
             preSynthesizer = preSynthesizer,
             currentBook = currentBook,
+            title = words.voice,
             allChapters = chaptersList,
             currentChapterIndex = currentChapterIndex,
             currentSentences = currentSentences,

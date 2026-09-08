@@ -31,6 +31,8 @@ class TTSControlBottomSheet(
     private val audioCache: TTSLocalAudioCache,
     private val preSynthesizer: TTSPreSynthesizer,
     private val currentBook: Book?,
+    /** What this theme calls the voice panel. */
+    private val title: String = "Voice & playback · 语音设置",
     private val allChapters: List<Chapter>,
     private val currentChapterIndex: Int,
     private val currentSentences: List<SentenceItem>,
@@ -67,6 +69,7 @@ class TTSControlBottomSheet(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.tvTtsTitle.text = title
 
         setupLanguageSpinner()
         setupEngines()
@@ -219,7 +222,7 @@ class TTSControlBottomSheet(
     }
 
     private fun setupCacheSection() {
-        binding.tvCacheStats.text = audioCache.getFormattedCacheSize() + " cached"
+        refreshCacheStats()
 
         binding.rbCacheBook.isChecked = savedWholeBookScope
         binding.rbCacheChapter.isChecked = !savedWholeBookScope
@@ -309,10 +312,31 @@ class TTSControlBottomSheet(
                     binding.tvPrecacheStatus.visibility = View.VISIBLE
                     binding.tvPrecacheStatus.text = note
                 }
-                binding.tvCacheStats.text = audioCache.getFormattedCacheSize() + " cached"
+                refreshCacheStats()
                 refreshResumeHint()
             }
         }
+    }
+
+    /**
+     * Sizes the cache off the main thread.
+     *
+     * The walk stats every clip — tens of thousands of them — and this used to
+     * run on every progress tick while caching, which is exactly when the UI
+     * can least afford it.
+     */
+    private fun refreshCacheStats() {
+        audioCache.peekTotalCacheSizeBytes()?.let {
+            binding.tvCacheStats.text = audioCache.formatBytes(it) + " cached"
+        }
+        Thread {
+            val bytes = audioCache.getTotalCacheSizeBytes()
+            view?.post {
+                if (_binding != null) {
+                    binding.tvCacheStats.text = audioCache.formatBytes(bytes) + " cached"
+                }
+            }
+        }.start()
     }
 
     /** Shows where a previous run stopped, and turns Start into Resume. */

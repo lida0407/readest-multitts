@@ -11,8 +11,8 @@ android {
         applicationId = "com.readest.multitts"
         minSdk = 24
         targetSdk = 34
-        versionCode = 19
-        versionName = "1.19.0"
+        versionCode = 20
+        versionName = "1.20.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

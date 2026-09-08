@@ -253,11 +253,7 @@
         android:stepSize="1.0"
         android:value="19.0"
         android:valueFrom="14.0"
-        android:valueTo="32.0"
-        app:thumbColor="?attr/rdAccent"
-        app:trackColorActive="?attr/rdAccent"
-        app:trackColorInactive="?attr/rdPanelSunk"
-        app:trackHeight="4dp" />
+        android:valueTo="32.0" />
 
     <!-- Reading Mode (Page by page vs Scroll) -->
     <TextView

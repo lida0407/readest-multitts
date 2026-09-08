@@ -54,6 +54,7 @@
         <item name="rdSuccess">@color/green</item>
         <item name="rdSuccessBright">@color/green</item>
         <item name="rdCachedTrack">@color/green_border</item>
+        <item name="rdTrackActive">@color/accent</item>
         <item name="rdDanger">@color/danger</item>
         <item name="rdBadgeBg">@color/badge_epub</item>
 
@@ -70,7 +71,6 @@
         <item name="rdPanelBg">@drawable/rd_classic_panel</item>
         <item name="rdHeaderBg">@drawable/rd_classic_panel</item>
         <item name="rdCardBg">@drawable/rd_classic_card</item>
-        <item name="rdSunkBg">@drawable/rd_classic_sunk</item>
         <item name="rdSheetBg">@drawable/rd_classic_panel</item>
         <item name="rdChipBg">@drawable/rd_classic_chip</item>
         <item name="rdChipBgSuccess">@drawable/rd_classic_chip_success</item>
@@ -97,6 +97,7 @@
         <item name="android:textViewStyle">@style/Widget.Readest.TextView.Classic</item>
         <item name="materialButtonStyle">@style/Widget.Readest.Button.Classic</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.Readest.Dialog.Classic</item>
+        <item name="sliderStyle">@style/Widget.Readest.Slider.Classic</item>
         <item name="rdFontHeading">@null</item>
         <item name="rdFontBody">@null</item>
 
@@ -145,6 +146,7 @@
         <item name="rdSuccess">@color/px_success</item>
         <item name="rdSuccessBright">@color/px_success_bright</item>
         <item name="rdCachedTrack">@color/px_cached_track</item>
+        <item name="rdTrackActive">@color/px_accent</item>
         <item name="rdDanger">@color/px_danger</item>
         <item name="rdBadgeBg">@color/px_badge_bg</item>
 
@@ -161,7 +163,6 @@
         <item name="rdPanelBg">@drawable/rd_pixel_panel</item>
         <item name="rdHeaderBg">@drawable/rd_pixel_panel</item>
         <item name="rdCardBg">@drawable/rd_pixel_card</item>
-        <item name="rdSunkBg">@drawable/rd_pixel_sunk</item>
         <item name="rdSheetBg">@drawable/rd_pixel_card</item>
         <item name="rdChipBg">@drawable/rd_pixel_chip</item>
         <item name="rdChipBgSuccess">@drawable/rd_pixel_chip_success</item>
@@ -188,6 +189,7 @@
         <item name="android:textViewStyle">@style/Widget.Readest.TextView.Pixel</item>
         <item name="materialButtonStyle">@style/Widget.Readest.Button.Pixel</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.Readest.Dialog.Pixel</item>
+        <item name="sliderStyle">@style/Widget.Readest.Slider.Pixel</item>
         <item name="rdFontHeading">@font/press_start_2p</item>
         <item name="rdFontBody">@font/vt323</item>
 
@@ -237,6 +239,7 @@
         <item name="rdSuccess">@color/cz_leaf</item>
         <item name="rdSuccessBright">@color/cz_leaf</item>
         <item name="rdCachedTrack">@color/cz_sky_soft</item>
+        <item name="rdTrackActive">@color/cz_leaf</item>
         <item name="rdDanger">@color/cz_coral</item>
         <item name="rdBadgeBg">@color/cz_lilac</item>
 
@@ -253,7 +256,6 @@
         <item name="rdPanelBg">@drawable/rd_cozy_panel</item>
         <item name="rdHeaderBg">@drawable/rd_cozy_header</item>
         <item name="rdCardBg">@drawable/rd_cozy_card</item>
-        <item name="rdSunkBg">@drawable/rd_cozy_sunk</item>
         <item name="rdSheetBg">@drawable/rd_cozy_card</item>
         <item name="rdChipBg">@drawable/rd_cozy_chip</item>
         <item name="rdChipBgSuccess">@drawable/rd_cozy_chip_success</item>
@@ -280,6 +282,7 @@
         <item name="android:textViewStyle">@style/Widget.Readest.TextView.Cozy</item>
         <item name="materialButtonStyle">@style/Widget.Readest.Button.Cozy</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.Readest.Dialog.Cozy</item>
+        <item name="sliderStyle">@style/Widget.Readest.Slider.Cozy</item>
         <item name="rdFontHeading">@font/fredoka_bold</item>
         <item name="rdFontBody">@font/nunito_bold</item>
 

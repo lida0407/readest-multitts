@@ -39,6 +39,10 @@
     <attr name="rdSuccess" format="color" />
     <attr name="rdSuccessBright" format="color" />
     <attr name="rdCachedTrack" format="color" />
+    <!-- The filled part of the chapter scrubber. A SeekBar's Material style
+         tints its own track from the colour scheme, which overrides whatever
+         the progress drawable paints, so the tint has to be stated too. -->
+    <attr name="rdTrackActive" format="color" />
     <attr name="rdDanger" format="color" />
     <attr name="rdBadgeBg" format="color" />
 
@@ -60,7 +64,6 @@
     <attr name="rdPanelBg" format="reference" />
     <attr name="rdHeaderBg" format="reference" />
     <attr name="rdCardBg" format="reference" />
-    <attr name="rdSunkBg" format="reference" />
     <attr name="rdSheetBg" format="reference" />
     <attr name="rdChipBg" format="reference" />
     <attr name="rdChipBgSuccess" format="reference" />

@@ -515,7 +515,10 @@
                 android:minHeight="16dp"
                 android:paddingStart="2dp"
                 android:paddingEnd="2dp"
+                android:progressBackgroundTint="?attr/rdPanelSunk"
                 android:progressDrawable="?attr/rdSeekbarDrawable"
+                android:progressTint="?attr/rdTrackActive"
+                android:secondaryProgressTint="?attr/rdCachedTrack"
                 android:splitTrack="false"
                 android:thumb="?attr/rdSeekbarThumb"
                 android:thumbOffset="0dp" />

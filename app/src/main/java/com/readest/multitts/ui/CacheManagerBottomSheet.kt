@@ -61,7 +61,7 @@ class CacheManagerBottomSheet(
         binding.btnClearAllCache.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Delete all offline audio?")
-                .setMessage("Removes ${audioCache.getFormattedCacheSize()} of cached narration for every book. Exported files in Music are not affected.")
+                .setMessage("Removes every book's cached narration. Exported files in Music are not affected.")
                 .setPositiveButton("Delete all") { _, _ ->
                     audioCache.clearAllCache()
                     reload()
@@ -79,23 +79,39 @@ class CacheManagerBottomSheet(
         ClickFeedback.applyToTree(view)
     }
 
+    /**
+     * Scans off the main thread.
+     *
+     * Sizing the cache means stat-ing every clip — tens of thousands of them —
+     * which froze the sheet for seconds on a well-used library. The total is
+     * summed from the per-book figures rather than walking the tree a second
+     * time.
+     */
     private fun reload() {
-        val books = bookRepository.getAllBooks()
-        rows = audioCache.listBookCaches().map { entry ->
-            val book = books.firstOrNull { it.id == entry.bookId }
-            Row(
-                bookId = entry.bookId,
-                title = book?.title ?: "Removed book · 已删除的书",
-                bytes = entry.bytes,
-                clips = entry.fileCount,
-                book = book
-            )
-        }
-
-        binding.tvCacheSummary.text =
-            "${audioCache.getFormattedCacheSize()} across ${rows.size} book(s) · exports land in Music/Readest++"
-        binding.tvCacheEmpty.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
-        binding.rvCacheBooks.adapter = CacheAdapter(rows)
+        binding.tvCacheSummary.text = "Counting…"
+        Thread {
+            val books = bookRepository.getAllBooks()
+            val scanned = audioCache.listBookCaches().map { entry ->
+                val book = books.firstOrNull { it.id == entry.bookId }
+                Row(
+                    bookId = entry.bookId,
+                    title = book?.title ?: "Removed book · 已删除的书",
+                    bytes = entry.bytes,
+                    clips = entry.fileCount,
+                    book = book
+                )
+            }
+            val total = scanned.sumOf { it.bytes }
+            view?.post {
+                if (_binding == null) return@post
+                rows = scanned
+                binding.tvCacheSummary.text =
+                    "${audioCache.formatBytes(total)} across ${rows.size} book(s) · " +
+                        "exports land in Music/Readest++"
+                binding.tvCacheEmpty.visibility = if (rows.isEmpty()) View.VISIBLE else View.GONE
+                binding.rvCacheBooks.adapter = CacheAdapter(rows)
+            }
+        }.start()
     }
 
     private fun confirmDelete(row: Row) {

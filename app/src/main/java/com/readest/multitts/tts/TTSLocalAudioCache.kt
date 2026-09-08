@@ -126,17 +126,38 @@ class TTSLocalAudioCache(private val context: Context) {
         return total
     }
 
+    @Volatile
+    private var totalBytes: Long = -1L
+
+    /**
+     * Total size on disk, remembered until something invalidates it.
+     *
+     * The walk is over tens of thousands of files — 42k on the author's phone —
+     * so it must never run on the main thread, and it should not run twice for
+     * one screen. [peekTotalCacheSizeBytes] lets a caller show the last known
+     * figure immediately and refresh in the background.
+     */
     fun getTotalCacheSizeBytes(): Long {
         var total = 0L
         cacheDir.walkTopDown().forEach { f ->
             if (f.isFile) total += f.length()
         }
+        totalBytes = total
         return total
+    }
+
+    /** The last measured total, or null if it has never been measured. */
+    fun peekTotalCacheSizeBytes(): Long? = totalBytes.takeIf { it >= 0 }
+
+    /** Call after anything that adds or removes cached audio. */
+    fun invalidateTotalCacheSize() {
+        totalBytes = -1L
     }
 
     fun getFormattedCacheSize(): String = formatBytes(getTotalCacheSizeBytes())
 
     fun clearBookCache(bookId: String) {
+        invalidateTotalCacheSize()
         val dir = bookDir(bookId)
         if (dir.exists()) {
             dir.deleteRecursively()
@@ -144,6 +165,7 @@ class TTSLocalAudioCache(private val context: Context) {
     }
 
     fun clearAllCache() {
+        invalidateTotalCacheSize()
         if (cacheDir.exists()) {
             cacheDir.deleteRecursively()
             cacheDir.mkdirs()

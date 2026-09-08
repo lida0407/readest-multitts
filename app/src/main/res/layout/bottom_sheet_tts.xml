@@ -32,6 +32,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:id="@+id/tvTtsTitle"
                 android:text="Voice &amp; playback · 语音设置"
                 android:textColor="?attr/rdTextPrimary"
                 android:textSize="16sp"
@@ -166,11 +167,7 @@
                     android:stepSize="0.1"
                     android:value="1.0"
                     android:valueFrom="0.5"
-                    android:valueTo="3.0"
-                    app:thumbColor="?attr/rdAccent"
-                    app:trackColorActive="?attr/rdAccent"
-                    app:trackColorInactive="?attr/rdPanelSunk"
-                    app:trackHeight="4dp" />
+                    android:valueTo="3.0" />
             </LinearLayout>
 
             <LinearLayout
@@ -212,11 +209,7 @@
                     android:stepSize="0.1"
                     android:value="1.0"
                     android:valueFrom="0.5"
-                    android:valueTo="2.0"
-                    app:thumbColor="?attr/rdAccent"
-                    app:trackColorActive="?attr/rdAccent"
-                    app:trackColorInactive="?attr/rdPanelSunk"
-                    app:trackHeight="4dp" />
+                    android:valueTo="2.0" />
             </LinearLayout>
         </LinearLayout>
 
@@ -225,7 +218,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:background="?attr/rdSunkBg"
+            android:background="?attr/rdCardBg"
             android:orientation="vertical"
             android:padding="14dp">
 
