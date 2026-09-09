@@ -68,7 +68,7 @@ class VocabBottomSheet(
     private fun askExportFormat() {
         if (store.count() == 0) return
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Export ${store.count()} words")
+            .setTitle(store.count().let { "Export $it word${if (it == 1) "" else "s"}" })
             .setItems(
                 arrayOf(
                     "Spreadsheet (.csv)",

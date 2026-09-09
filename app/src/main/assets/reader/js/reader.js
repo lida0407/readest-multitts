@@ -371,6 +371,13 @@
         goToSentence: function (index) {
             const target = document.getElementById('sentence-' + index);
             if (!target) return;
+            // A chapter that has just been injected has not been laid out yet,
+            // so offsetLeft is still zero and scrollIntoView goes nowhere. Wait
+            // for the frame that measures it.
+            if (!target.offsetParent && !target.offsetWidth) {
+                requestAnimationFrame(function () { ReaderApp.goToSentence(index); });
+                return;
+            }
             if (readingMode === 'paginated') {
                 const container = document.getElementById('content-container');
                 currentPageIndex = Math.floor(target.offsetLeft / window.innerWidth);

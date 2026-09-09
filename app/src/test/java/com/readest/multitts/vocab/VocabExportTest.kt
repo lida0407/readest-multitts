@@ -72,6 +72,24 @@ class VocabExportTest {
     }
 
     @Test
+    fun `a gloss that opens by repeating the headword loses that line`() {
+        val trimmed = VocabStore.trimGloss("wilderness", "wilderness\n[D.J.'wildənis]\nn. 荒野")
+        assertTrue("keeps the pronunciation", trimmed.startsWith("[D.J."))
+        assertTrue("keeps the meaning", trimmed.contains("荒野"))
+    }
+
+    @Test
+    fun `a gloss that does not repeat the headword is untouched`() {
+        val trimmed = VocabStore.trimGloss("run", "v. 跑, 奔跑")
+        assertEquals("v. 跑, 奔跑", trimmed)
+    }
+
+    @Test
+    fun `a gloss that is only the headword is kept rather than emptied`() {
+        assertEquals("run", VocabStore.trimGloss("run", "run"))
+    }
+
+    @Test
     fun `an empty notebook still writes a usable csv header`() {
         val csv = VocabStore.render(emptyList(), VocabStore.Format.CSV)
         assertTrue(csv.startsWith("word,definition,"))

@@ -101,6 +101,8 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     private var areToolbarsVisible = true
     private var pendingStartSentence = 0
     private var visibleSentenceIndex = 0
+    /** Where the scrubber sits, which is not always where the eye is. */
+    private var scrubberSentence = 0
     private var enteringChapterBackwards = false
     private var isScrubbing = false
     private var keepScreenOnWhileCaching = true
@@ -587,6 +589,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
 
     private fun updateScrubber(sentenceIndex: Int) {
         if (isScrubbing) return
+        scrubberSentence = sentenceIndex
         val count = currentSentences.size
         binding.sliderTtsProgress.progress =
             if (count <= 1) 0 else (sentenceIndex * 1000 / (count - 1)).coerceIn(0, 1000)
@@ -627,7 +630,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
      */
     private fun setCachedAhead(permille: Int) {
         binding.sliderTtsProgress.secondaryProgress = permille
-        binding.tvScrubberLabel.text = scrubberLabel(visibleSentenceIndex)
+        binding.tvScrubberLabel.text = scrubberLabel(scrubberSentence)
     }
 
     private fun openFilePicker() {
@@ -1522,7 +1525,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
                             putExtra(Intent.EXTRA_SUBJECT, out.name)
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         },
-                        "Export ${vocabStore.count()} words"
+                        vocabStore.count().let { "Export $it word${if (it == 1) "" else "s"}" }
                     )
                 )
             }

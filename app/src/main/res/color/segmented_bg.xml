@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Selected reads as filled, not merely tinted: a pale wash behind accent text
+     is the hardest pair to tell apart at a glance. -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="?attr/rdInfoSoft" android:state_checked="true" />
-    <item android:color="?attr/rdPanel" />
+    <item android:color="?attr/rdAccent" android:state_checked="true" />
+    <item android:color="@android:color/transparent" />
 </selector>

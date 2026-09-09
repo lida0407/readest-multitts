@@ -66,6 +66,7 @@ class VocabStore(context: Context) {
     ) {
         val trimmed = word.trim()
         if (trimmed.isEmpty() || gloss.isBlank()) return
+        val short = trimGloss(trimmed, gloss)
         val now = System.currentTimeMillis()
         val list = all()
         val existing = list.indexOfFirst { it.word.equals(trimmed, ignoreCase = true) }
@@ -74,7 +75,7 @@ class VocabStore(context: Context) {
             list[existing] = old.copy(
                 // A later look-up may be from a better dictionary, or a
                 // different book — keep the newer context.
-                gloss = gloss,
+                gloss = short,
                 source = source,
                 sentence = sentence.ifBlank { old.sentence },
                 bookId = bookId ?: old.bookId,
@@ -86,7 +87,7 @@ class VocabStore(context: Context) {
             list.add(
                 Entry(
                     word = trimmed,
-                    gloss = gloss,
+                    gloss = short,
                     source = source,
                     sentence = sentence,
                     bookId = bookId,
@@ -144,6 +145,20 @@ class VocabStore(context: Context) {
     companion object {
 
         private const val TAG = "VocabStore"
+
+        /**
+         * Dictionary entries open by repeating the headword, which in a list
+         * that already shows the word costs the most valuable line — the one
+         * before the reader stops reading.
+         */
+        fun trimGloss(word: String, gloss: String): String {
+            val lines = gloss.lines()
+            val first = lines.firstOrNull()?.trim().orEmpty()
+            val rest = if (first.equals(word, ignoreCase = true)) lines.drop(1) else lines
+            return rest.joinToString("\n") { it.trim() }
+                .trim()
+                .ifBlank { gloss.trim() }
+        }
 
         /** Pure, so the shape of an export can be tested without a filesystem. */
         fun render(rows: List<Entry>, format: Format): String {
