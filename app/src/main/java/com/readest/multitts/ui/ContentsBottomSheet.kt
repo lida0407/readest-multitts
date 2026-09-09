@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -126,8 +125,11 @@ class ContentsBottomSheet(
             holder.binding.tvRowBadge.visibility = if (isCurrent) View.VISIBLE else View.GONE
             holder.binding.tvRowBadge.text = "Reading"
 
-            val titleColor = if (isCurrent) R.color.accent else R.color.text_primary
-            holder.binding.tvRowTitle.setTextColor(ContextCompat.getColor(ctx, titleColor))
+            val value = android.util.TypedValue()
+            ctx.theme.resolveAttribute(
+                if (isCurrent) R.attr.rdAccent else R.attr.rdTextPrimary, value, true
+            )
+            holder.binding.tvRowTitle.setTextColor(value.data)
             holder.binding.tvRowTitle.setTypeface(null, if (isCurrent) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
 
             holder.itemView.setOnClickListener { onClick(position) }
@@ -147,10 +149,15 @@ class ContentsBottomSheet(
 
         override fun onBindViewHolder(holder: RowHolder, position: Int) {
             val bm = items[position]
-            holder.binding.tvRowIndex.text = "🔖"
+            holder.binding.tvRowIndex.text = if (bm.isHighlight) "🖍" else "🔖"
             holder.binding.tvRowTitle.text = bm.excerpt.ifBlank { bm.chapterTitle }
             holder.binding.tvRowSubtitle.visibility = View.VISIBLE
-            holder.binding.tvRowSubtitle.text = "Ch ${bm.chapterIndex + 1} · ${bm.chapterTitle}"
+            // The note is the reason this one was kept, so it leads.
+            holder.binding.tvRowSubtitle.text = listOfNotNull(
+                bm.note?.takeIf { it.isNotBlank() }?.let { "✎ $it" },
+                "Ch ${bm.chapterIndex + 1} · ${bm.chapterTitle}"
+            ).joinToString("\n")
+            holder.binding.tvRowSubtitle.maxLines = if (bm.note.isNullOrBlank()) 2 else 4
             holder.binding.tvRowBadge.visibility = View.GONE
             holder.binding.btnRowDelete.visibility = View.VISIBLE
 

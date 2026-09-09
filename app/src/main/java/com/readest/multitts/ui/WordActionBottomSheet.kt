@@ -35,10 +35,16 @@ class WordActionBottomSheet(
     /** The eyebrow above the word — the theme decides what a look-up is worth. */
     private val foundLabel: String,
     private val onLookedUp: () -> Unit,
+    /** A definition worth keeping: the word, its gloss and where it answered from. */
+    private val onDefined: (word: String, gloss: String, source: String) -> Unit,
     private val onTargetChanged: (String) -> Unit,
     private val onSpeak: (String) -> Unit,
     private val onReadFromHere: (Int) -> Unit,
     private val onManageDictionaries: () -> Unit,
+    /** True while this sentence is highlighted, so the button can show state. */
+    private val isHighlighted: () -> Boolean,
+    private val onToggleHighlight: () -> Boolean,
+    private val onEditNote: () -> Unit,
     private val onDismissed: () -> Unit
 ) : BottomSheetDialogFragment() {
 
@@ -78,6 +84,16 @@ class WordActionBottomSheet(
             clipboard.setPrimaryClip(ClipData.newPlainText("word", word))
             Toast.makeText(context, "Copied “$word”", Toast.LENGTH_SHORT).show()
         }
+        refreshHighlightButton()
+        binding.btnHighlightSentence.setOnClickListener {
+            onToggleHighlight()
+            refreshHighlightButton()
+        }
+        binding.btnNoteSentence.setOnClickListener {
+            onEditNote()
+            dismiss()
+        }
+
         binding.btnReadFromHere.setOnClickListener {
             onReadFromHere(sentenceIndex)
             dismiss()
@@ -99,6 +115,12 @@ class WordActionBottomSheet(
         refreshChips()
         run()
         ClickFeedback.applyToTree(view)
+    }
+
+    /** A highlighted sentence shows a filled marker; an unmarked one is dimmed. */
+    private fun refreshHighlightButton() {
+        if (_binding == null) return
+        binding.btnHighlightSentence.alpha = if (isHighlighted()) 1f else 0.45f
     }
 
     // ------------------------------------------------------------------ chips
@@ -177,6 +199,7 @@ class WordActionBottomSheet(
                         is Translator.Result.Ok -> {
                             val t = result.translation
                             lastSpoken = t.text
+                            onDefined(word, t.text, "Google Translate")
                             val source = t.sourceLanguage?.let { " · detected $it" } ?: ""
                             val roman = t.romanization?.let { "<br><small>$it</small>" } ?: ""
                             setHtml("<b>${escape(t.text)}</b>$roman<br><br><small>via Google$source</small>")
@@ -209,7 +232,9 @@ class WordActionBottomSheet(
             return
         }
         val (source, definition) = hits[selectedHit.coerceIn(0, hits.size - 1)]
-        lastSpoken = DictionaryHtml.toPlainText(definition.html).ifBlank { word }
+        val plain = DictionaryHtml.toPlainText(definition.html)
+        lastSpoken = plain.ifBlank { word }
+        onDefined(word, plain, source.name)
         setHtml(
             "<small>${escape(source.name)}</small><br><br>" +
                 DictionaryHtml.toDisplayHtml(definition.html)

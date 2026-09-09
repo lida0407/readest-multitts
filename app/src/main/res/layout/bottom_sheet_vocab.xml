@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/rdPanel"
+    android:orientation="vertical"
+    android:paddingTop="8dp">
+
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="14dp"
+        android:background="?attr/rdDragHandleBg" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvVocabTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vocabulary · 生词本"
+                android:textAppearance="?attr/rdHeadingAppearance" />
+
+            <TextView
+                android:id="@+id/tvVocabSummary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textAppearance="?attr/rdSubtitleAppearance" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/btnVocabExport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/rdChipBg"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:paddingStart="11dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="11dp"
+            android:paddingBottom="5dp"
+            android:text="Export"
+            android:textAppearance="?attr/rdChipAppearance"
+            android:textColor="?attr/rdOnChip" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/etVocabSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="22dp"
+        android:autofillHints=""
+        android:background="?attr/rdChipBgMuted"
+        android:hint="Search your words · 搜索"
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingStart="14dp"
+        android:paddingTop="9dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="9dp"
+        android:textColor="?attr/rdTextPrimary"
+        android:textColorHint="?attr/rdTextTertiary"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/tvVocabEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:gravity="center"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
+        android:text="还没有生词\n\nLong-press a word while reading and look it up. Every word you look up lands here, with its definition and the sentence you met it in."
+        android:textAppearance="?attr/rdSubtitleAppearance"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvVocab"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="20dp" />
+</LinearLayout>

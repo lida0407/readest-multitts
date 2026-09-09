@@ -25,6 +25,7 @@ class SettingsBottomSheet(
     private val onOpenCache: () -> Unit,
     private val onOpenDictionaries: () -> Unit,
     private val onOpenTranslate: () -> Unit,
+    private val onOpenVocab: () -> Unit,
     private val onOpenDisplay: () -> Unit,
     private val onOpenAppTheme: () -> Unit,
     private val onOpenShelfOrder: () -> Unit,
@@ -41,6 +42,7 @@ class SettingsBottomSheet(
         val cache: String,
         val dictionaries: String,
         val translateTarget: String,
+        val vocabulary: String,
         val display: String,
         val shelfOrder: String,
         val version: String,
@@ -110,6 +112,7 @@ class SettingsBottomSheet(
         row(binding.rowCache, "⚡", summary.offlineRowLabel, summary.cache, onOpenCache)
 
         row(binding.rowDictionaries, "📚", "Dictionaries", summary.dictionaries, onOpenDictionaries)
+        row(binding.rowVocab, "📝", "Vocabulary · 生词本", summary.vocabulary, onOpenVocab)
         row(binding.rowTranslate, "🌐", "Translation language", summary.translateTarget, onOpenTranslate)
 
         row(binding.rowAppTheme, "🎮", "App theme · 主题", summary.appTheme, onOpenAppTheme)

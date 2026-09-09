@@ -180,6 +180,10 @@
                 layout="@layout/item_settings_row" />
 
             <include
+                android:id="@+id/rowVocab"
+                layout="@layout/item_settings_row" />
+
+            <include
                 android:id="@+id/rowTranslate"
                 layout="@layout/item_settings_row" />
 

@@ -25,10 +25,67 @@ class BookmarkRepository(context: Context) {
         getAll().filter { it.bookId == bookId }
             .sortedWith(compareBy({ it.chapterIndex }, { it.sentenceIndex }))
 
+    /**
+     * The plain bookmark on a sentence, if any.
+     *
+     * Highlights are excluded so that toggling the bookmark icon on a sentence
+     * you highlighted does not silently delete the highlight.
+     */
     fun find(bookId: String, chapterIndex: Int, sentenceIndex: Int): Bookmark? =
         getAll().firstOrNull {
-            it.bookId == bookId && it.chapterIndex == chapterIndex && it.sentenceIndex == sentenceIndex
+            it.bookId == bookId && it.chapterIndex == chapterIndex &&
+                it.sentenceIndex == sentenceIndex && !it.isHighlight
         }
+
+    fun findHighlight(bookId: String, chapterIndex: Int, sentenceIndex: Int): Bookmark? =
+        getAll().firstOrNull {
+            it.bookId == bookId && it.chapterIndex == chapterIndex &&
+                it.sentenceIndex == sentenceIndex && it.isHighlight
+        }
+
+    /** Sentence indices the reader should paint in this chapter. */
+    fun highlightIndices(bookId: String, chapterIndex: Int): List<Int> =
+        getAll().filter { it.bookId == bookId && it.chapterIndex == chapterIndex && it.isHighlight }
+            .map { it.sentenceIndex }
+
+    fun addHighlight(
+        bookId: String,
+        chapterIndex: Int,
+        chapterTitle: String,
+        sentenceIndex: Int,
+        excerpt: String,
+        note: String? = null
+    ): Bookmark {
+        val existing = findHighlight(bookId, chapterIndex, sentenceIndex)
+        if (existing != null) {
+            if (note == null) return existing
+            return setNote(existing.id, note) ?: existing
+        }
+        val highlight = Bookmark(
+            id = UUID.randomUUID().toString(),
+            bookId = bookId,
+            chapterIndex = chapterIndex,
+            chapterTitle = chapterTitle,
+            sentenceIndex = sentenceIndex,
+            excerpt = excerpt.take(300),
+            isHighlight = true,
+            note = note
+        )
+        val all = getAll()
+        all.add(highlight)
+        save(all)
+        return highlight
+    }
+
+    fun setNote(bookmarkId: String, note: String?): Bookmark? {
+        val all = getAll()
+        val index = all.indexOfFirst { it.id == bookmarkId }
+        if (index < 0) return null
+        val updated = all[index].copy(note = note?.takeIf { it.isNotBlank() })
+        all[index] = updated
+        save(all)
+        return updated
+    }
 
     fun add(
         bookId: String,

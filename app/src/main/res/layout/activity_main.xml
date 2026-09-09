@@ -129,6 +129,15 @@
                     app:tint="?attr/rdTextSecondary" />
 
                 <ImageButton
+                    android:id="@+id/btnSearch"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Search"
+                    android:src="@drawable/ic_search"
+                    app:tint="?attr/rdTextSecondary" />
+
+                <ImageButton
                     android:id="@+id/btnSettings"
                     android:layout_width="40dp"
                     android:layout_height="40dp"

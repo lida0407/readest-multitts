@@ -134,6 +134,26 @@
 
     window.ReaderApp = {
 
+        /**
+         * Paints the sentences saved as highlights in this chapter.
+         * Called after every chapter load, so turning a page keeps them.
+         */
+        setHighlights: function (indicesJson) {
+            document.querySelectorAll('.sentence.saved-highlight')
+                .forEach(function (el) { el.classList.remove('saved-highlight'); });
+            var list;
+            try {
+                list = typeof indicesJson === 'string' ? JSON.parse(indicesJson) : indicesJson;
+            } catch (e) {
+                return;
+            }
+            if (!list || !list.length) return;
+            list.forEach(function (index) {
+                var el = document.getElementById('sentence-' + index);
+                if (el) el.classList.add('saved-highlight');
+            });
+        },
+
         setChapterWord: function (word) {
             chapterWord = word || 'Ch';
             ReaderApp.updatePageFooter();

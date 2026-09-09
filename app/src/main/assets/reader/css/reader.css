@@ -26,6 +26,7 @@
     --active-sentence-bg: rgba(37, 99, 235, 0.16);
     --active-sentence-border: #2563EB;
     --footer-text: #94A3B8;
+    --saved-highlight-bg: #FDE68A;
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
     --font-size: 19px;
     --line-height: 1.85;
@@ -40,6 +41,7 @@ body.theme-oled {
     --active-sentence-bg: rgba(59, 130, 246, 0.4);
     --active-sentence-border: #60A5FA;
     --footer-text: #4B5563;
+    --saved-highlight-bg: #3F3B1E;
 }
 
 body.theme-dark {
@@ -49,6 +51,7 @@ body.theme-dark {
     --active-sentence-bg: rgba(59, 130, 246, 0.35);
     --active-sentence-border: #3B82F6;
     --footer-text: #64748B;
+    --saved-highlight-bg: #4A421A;
 }
 
 body.theme-light {
@@ -58,6 +61,7 @@ body.theme-light {
     --active-sentence-bg: rgba(37, 99, 235, 0.18);
     --active-sentence-border: #2563EB;
     --footer-text: #71717A;
+    --saved-highlight-bg: #FDE68A;
 }
 
 body.theme-sepia {
@@ -67,6 +71,7 @@ body.theme-sepia {
     --active-sentence-bg: rgba(180, 83, 9, 0.22);
     --active-sentence-border: #D97706;
     --footer-text: #8C6D46;
+    --saved-highlight-bg: #E9CF94;
 }
 
 body.theme-mint {
@@ -76,6 +81,7 @@ body.theme-mint {
     --active-sentence-bg: rgba(16, 185, 129, 0.22);
     --active-sentence-border: #059669;
     --footer-text: #4D7858;
+    --saved-highlight-bg: #D7E9B0;
 }
 
 /* ── Skins that belong to an app theme ──────────────────────────────────────
@@ -91,6 +97,7 @@ body.theme-parchment {
     --footer-text: #566C86;
     --font-family: "VT323", ui-monospace, SFMono-Regular, Menlo, "PingFang SC", "Noto Sans SC", monospace;
     --line-height: 1.35;
+    --saved-highlight-bg: #FFCD75;
 }
 
 body.theme-meadow {
@@ -102,6 +109,23 @@ body.theme-meadow {
     --footer-text: #8B7A66;
     --font-family: "Nunito", -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
     --line-height: 1.5;
+    --saved-highlight-bg: #F9E29B;
+}
+
+
+/* A sentence the reader saved. Distinct from the narration highlight, which
+   moves, and from the word highlight, which is momentary. */
+.sentence.saved-highlight {
+    background-color: var(--saved-highlight-bg);
+    border-radius: 3px;
+    box-shadow: 0 0 0 2px var(--saved-highlight-bg);
+}
+
+.sentence.saved-highlight.tts-active {
+    /* Narration wins while it is speaking: losing your place costs more than
+       losing sight of a highlight for one sentence. */
+    background-color: var(--active-sentence-bg);
+    box-shadow: 0 0 0 2px var(--active-sentence-bg);
 }
 
 body.theme-parchment .sentence.active,

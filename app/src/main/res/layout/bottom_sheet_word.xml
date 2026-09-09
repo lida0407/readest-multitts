@@ -65,6 +65,33 @@
             android:contentDescription="Copy"
             android:src="@android:drawable/ic_menu_edit"
             app:tint="?attr/rdTextSecondary" />
+
+        <!-- Acts on the sentence, not the word: a highlight you cannot read
+             back in context is not worth keeping. -->
+        <TextView
+            android:id="@+id/btnHighlightSentence"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="Highlight this sentence"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="🖍"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/btnNoteSentence"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:contentDescription="Note on this sentence"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="✎"
+            android:textColor="?attr/rdTextSecondary"
+            android:textSize="19sp" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButtonToggleGroup

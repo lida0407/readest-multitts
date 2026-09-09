@@ -9,4 +9,5 @@
     <string name="pre_generate_desc">Generate and save audio locally to save battery &amp; data</string>
     <string name="multitts_not_installed">MultiTTS engine is not detected on your device</string>
     <string name="download_multitts">Download MultiTTS</string>
+    <string name="vocab_empty">还没有生词\n\nLong-press a word while reading and look it up. Every word you look up lands here, with its definition and the sentence you met it in.</string>
 </resources>

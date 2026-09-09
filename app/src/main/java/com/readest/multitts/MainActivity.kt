@@ -18,6 +18,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
+import org.json.JSONArray
 import com.readest.multitts.databinding.ActivityMainBinding
 import com.readest.multitts.model.Book
 import com.readest.multitts.model.Bookmark
@@ -30,6 +31,7 @@ import com.readest.multitts.playback.PlaybackEventListener
 import com.readest.multitts.reader.DocumentManager
 import com.readest.multitts.reader.PdfParser
 import com.readest.multitts.reader.ReaderBridge
+import com.readest.multitts.reader.BookSearch
 import com.readest.multitts.reader.ReaderBridgeListener
 import com.readest.multitts.theme.AppTheme
 import com.readest.multitts.theme.GameState
@@ -52,7 +54,10 @@ import com.readest.multitts.dict.DictionaryStore
 import com.readest.multitts.dict.Translator
 import com.readest.multitts.ui.DictionaryManagerBottomSheet
 import com.readest.multitts.ui.TTSControlBottomSheet
+import com.readest.multitts.ui.SearchBottomSheet
+import com.readest.multitts.ui.VocabBottomSheet
 import com.readest.multitts.ui.WordActionBottomSheet
+import com.readest.multitts.vocab.VocabStore
 import com.readest.multitts.update.UpdateChecker
 import com.readest.multitts.update.UpdateInstaller
 import java.io.File
@@ -157,6 +162,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     }
 
     private val dictionaryStore by lazy { DictionaryStore(applicationContext) }
+    private val vocabStore by lazy { VocabStore(applicationContext) }
     private var dictionarySheet: DictionaryManagerBottomSheet? = null
     private var wordSheetOpen = false
 
@@ -451,6 +457,10 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
 
         binding.btnSettings.setOnClickListener {
             showSettingsSheet()
+        }
+
+        binding.btnSearch.setOnClickListener {
+            showSearch()
         }
 
         binding.btnOpenSettings.setOnClickListener {
@@ -976,6 +986,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             onOpenCache = { showCacheManager() },
             onOpenDictionaries = { showDictionaryManager() },
             onOpenTranslate = { showTranslateTargetPicker() },
+            onOpenVocab = { showVocabNotebook() },
             onOpenDisplay = { showReaderSettingsBottomSheet() },
             onOpenAppTheme = { showAppThemePicker() },
             onOpenShelfOrder = { showSortChooser() },
@@ -1034,6 +1045,10 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
                     else "${audioCache.formatBytes(cacheBytes)} of offline audio",
             dictionaries = dictLabel,
             translateTarget = targetLabel,
+            vocabulary = vocabStore.count().let { n ->
+                if (n == 0) "Words you look up will collect here"
+                else "$n word${if (n == 1) "" else "s"} collected"
+            },
             display = "$themeLabel · ${currentFontSize}px · $modeLabel",
             shelfOrder = sortLabel().removeSuffix(" ▾"),
             version = versionLabel(),
@@ -1252,6 +1267,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
             )
         }
         currentSentences = items
+        runOnUiThread { pushHighlights() }
 
         val startIndex = pendingStartSentence.coerceIn(0, (items.size - 1).coerceAtLeast(0))
         val service = playbackService
@@ -1329,16 +1345,188 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
                     game.onWordLookedUp(currentBook?.id)
                     refreshGameHeader()
                 },
+                onDefined = { looked, gloss, source ->
+                    // Written on a background thread: the notebook file grows
+                    // with every word and a page turn should not wait on it.
+                    val book = currentBook
+                    Thread {
+                        vocabStore.record(
+                            word = looked,
+                            gloss = gloss,
+                            source = source,
+                            sentence = sentenceText,
+                            bookId = book?.id,
+                            bookTitle = book?.title
+                        )
+                    }.start()
+                },
                 onTargetChanged = { prefs.edit().putString("translate_target", it).apply() },
                 onSpeak = { text -> ttsController.speak(text, "word_lookup") },
                 onReadFromHere = { index -> onSentenceClicked(index, sentenceText) },
                 onManageDictionaries = { showDictionaryManager() },
+                isHighlighted = {
+                    currentBook?.let {
+                        bookmarkRepository.findHighlight(it.id, currentChapterIndex, sentenceIndex) != null
+                    } == true
+                },
+                onToggleHighlight = { toggleHighlight(sentenceIndex, sentenceText) },
+                onEditNote = { editNote(sentenceIndex, sentenceText) },
                 onDismissed = {
                     wordSheetOpen = false
                     binding.readerWebView.evaluateJavascript("ReaderApp.clearWordHighlight();", null)
                 }
             ).show(supportFragmentManager, "word")
         }
+    }
+
+    /** Marks or unmarks the sentence, and repaints the page. */
+    private fun toggleHighlight(sentenceIndex: Int, sentenceText: String): Boolean {
+        val book = currentBook ?: return false
+        val existing = bookmarkRepository.findHighlight(book.id, currentChapterIndex, sentenceIndex)
+        val nowHighlighted: Boolean
+        if (existing != null) {
+            bookmarkRepository.remove(existing.id)
+            nowHighlighted = false
+        } else {
+            bookmarkRepository.addHighlight(
+                bookId = book.id,
+                chapterIndex = currentChapterIndex,
+                chapterTitle = chaptersList.getOrNull(currentChapterIndex)?.title ?: "",
+                sentenceIndex = sentenceIndex,
+                excerpt = sentenceText
+            )
+            nowHighlighted = true
+        }
+        pushHighlights()
+        return nowHighlighted
+    }
+
+    /**
+     * A note implies a highlight: an annotation you cannot find again on the
+     * page is a note about nothing.
+     */
+    private fun editNote(sentenceIndex: Int, sentenceText: String) {
+        val book = currentBook ?: return
+        val existing = bookmarkRepository.findHighlight(book.id, currentChapterIndex, sentenceIndex)
+        val input = android.widget.EditText(this).apply {
+            setText(existing?.note.orEmpty())
+            hint = "What did you want to remember?"
+            setSingleLine(false)
+            maxLines = 5
+            setPadding(48, 32, 48, 32)
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(if (existing?.note.isNullOrBlank()) "Add a note" else "Edit note")
+            .setMessage("“${sentenceText.take(160)}”")
+            .setView(input)
+            .setPositiveButton("Save") { _, _ ->
+                val text = input.text.toString().trim()
+                val mark = existing ?: bookmarkRepository.addHighlight(
+                    bookId = book.id,
+                    chapterIndex = currentChapterIndex,
+                    chapterTitle = chaptersList.getOrNull(currentChapterIndex)?.title ?: "",
+                    sentenceIndex = sentenceIndex,
+                    excerpt = sentenceText
+                )
+                bookmarkRepository.setNote(mark.id, text)
+                pushHighlights()
+                refreshBookmarkIcon()
+            }
+            .apply {
+                if (existing != null) setNeutralButton("Remove highlight") { _, _ ->
+                    bookmarkRepository.remove(existing.id)
+                    pushHighlights()
+                    refreshBookmarkIcon()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    /** Tells the page which sentences in this chapter are marked. */
+    private fun pushHighlights() {
+        val book = currentBook ?: return
+        val indices = bookmarkRepository.highlightIndices(book.id, currentChapterIndex)
+        binding.readerWebView.evaluateJavascript(
+            "ReaderApp.setHighlights('${JSONArray(indices)}')", null
+        )
+    }
+
+    private fun showSearch() {
+        SearchBottomSheet(
+            currentBook = currentBook,
+            currentChapters = chaptersList,
+            libraryBooks = bookRepository.getAllBooks(),
+            chapterWord = { n, _ -> words.chapterShort(n) },
+            onOpenHit = { hit -> openSearchHit(hit) }
+        ).show(supportFragmentManager, "search")
+    }
+
+    /** Opens the book if needed, then lands on the sentence that matched. */
+    private fun openSearchHit(hit: BookSearch.Hit) {
+        val target = bookRepository.getAllBooks().firstOrNull { it.id == hit.bookId } ?: return
+        if (currentBook?.id == hit.bookId) {
+            if (currentChapterIndex != hit.chapterIndex) {
+                currentChapterIndex = hit.chapterIndex
+                pendingStartSentence = hit.sentenceIndex
+                loadCurrentChapterIntoWebView()
+            } else {
+                binding.readerWebView.evaluateJavascript(
+                    "ReaderApp.goToSentence(${hit.sentenceIndex})", null
+                )
+            }
+            return
+        }
+        openSavedBook(
+            target.copy(
+                currentChapterIndex = hit.chapterIndex,
+                currentSentenceIndex = hit.sentenceIndex
+            )
+        )
+    }
+
+    private fun showVocabNotebook() {
+        VocabBottomSheet(
+            store = vocabStore,
+            onSpeak = { text -> ttsController.speak(text, "vocab") },
+            onExport = { format -> exportVocabulary(format) }
+        ).show(supportFragmentManager, "vocab")
+    }
+
+    /**
+     * Hands the file to whatever the reader wants to do with it.
+     *
+     * A share sheet rather than a save to Downloads: the useful destinations
+     * are Anki, a mail draft and a notes app, none of which watch a folder.
+     */
+    private fun exportVocabulary(format: VocabStore.Format) {
+        Thread {
+            val text = vocabStore.export(format)
+            val stamp = java.text.SimpleDateFormat("yyyyMMdd", Locale.US).format(java.util.Date())
+            val out = File(cacheDir, "vocabulary-$stamp.${format.extension}")
+            try {
+                out.writeText(text)
+            } catch (e: Exception) {
+                runOnUiThread { Toast.makeText(this, "Couldn't write the export", Toast.LENGTH_SHORT).show() }
+                return@Thread
+            }
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                this, "$packageName.fileprovider", out
+            )
+            runOnUiThread {
+                startActivity(
+                    Intent.createChooser(
+                        Intent(Intent.ACTION_SEND).apply {
+                            type = format.mime
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            putExtra(Intent.EXTRA_SUBJECT, out.name)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        },
+                        "Export ${vocabStore.count()} words"
+                    )
+                )
+            }
+        }.start()
     }
 
     private fun showDictionaryManager() {
