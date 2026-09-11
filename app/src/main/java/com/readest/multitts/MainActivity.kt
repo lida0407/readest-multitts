@@ -31,12 +31,16 @@ import com.readest.multitts.playback.PlaybackEventListener
 import com.readest.multitts.reader.DocumentManager
 import com.readest.multitts.reader.PdfParser
 import com.readest.multitts.reader.ReaderBridge
+import com.readest.multitts.bundle.BookBundle
+import com.readest.multitts.bundle.BundleExporter
+import com.readest.multitts.bundle.BundleImporter
 import com.readest.multitts.reader.BookSearch
 import com.readest.multitts.reader.ReaderBridgeListener
 import com.readest.multitts.theme.AppTheme
 import com.readest.multitts.theme.GameState
 import com.readest.multitts.theme.Words
 import com.readest.multitts.tts.CacheCheckpointStore
+import com.readest.multitts.tts.CacheResolver
 import com.readest.multitts.tts.MultiTTSManager
 import com.readest.multitts.tts.TTSEngineController
 import com.readest.multitts.tts.TTSLocalAudioCache
@@ -167,6 +171,30 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     private val vocabStore by lazy { VocabStore(applicationContext) }
     private var dictionarySheet: DictionaryManagerBottomSheet? = null
     private var wordSheetOpen = false
+
+    /** The book whose bundle is waiting for the reader to choose a destination. */
+    private var pendingBundleBook: Book? = null
+
+    /**
+     * Writes a bundle wherever the reader points, Drive included.
+     *
+     * The Storage Access Framework is what makes "save straight to Drive" work
+     * without a Google Cloud project or a sign-in: Drive is just another
+     * provider in the picker.
+     */
+    private val bundleSaveLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument(BookBundle.MIME)
+    ) { uri: Uri? ->
+        val book = pendingBundleBook
+        pendingBundleBook = null
+        if (uri != null && book != null) writeBundle(book, uri)
+    }
+
+    private val bundleOpenLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let { readBundle(it) }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // The bottom sheets are constructor-injected fragments; they cannot be restored
@@ -679,6 +707,14 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     }
 
     private fun importBookFromUri(uri: Uri) {
+        // A bundle is a zip, not a book: hand it to the restorer instead of
+        // letting the parser fail on it.
+        if (BundleImporter.looksLikeBundle(getFileName(uri)) ||
+            BundleImporter.containsManifest { contentResolver.openInputStream(uri) }
+        ) {
+            readBundle(uri)
+            return
+        }
         try {
             val fileName = getFileName(uri) ?: "imported_book_${System.currentTimeMillis()}"
             val persistentFile = bookRepository.getPersistentFileForBook(fileName)
@@ -1140,6 +1176,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
 
     private fun showCacheManager() {
         val sheet = CacheManagerBottomSheet(
+            onBundleBook = { book -> offerBundle(book) },
             audioCache = audioCache,
             bookRepository = bookRepository,
             // The cache key includes the voice, so the manager needs the candidates
@@ -1486,6 +1523,170 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
                 currentSentenceIndex = hit.sentenceIndex
             )
         )
+    }
+
+    // ------------------------------------------------------------- bundles
+
+    /**
+     * Offers to write a book and its narration as one file.
+     *
+     * The size is shown first because the answer is the whole decision: a book
+     * you have narrated in full is tens of megabytes, and knowing that before
+     * the picker opens is what makes "save to Drive" a reasonable thing to do.
+     */
+    private fun offerBundle(book: Book) {
+        Thread {
+            val chapters = try {
+                DocumentManager.loadBookCached(this, File(book.filePath)).second
+            } catch (e: Throwable) {
+                runOnUiThread { toast("Couldn't read ${book.title}") }
+                return@Thread
+            }
+            val voice = CacheResolver.detectVoice(audioCache, book, chapters, voiceCandidates())
+            if (voice == null) {
+                runOnUiThread { toast("No narration cached for this book yet") }
+                return@Thread
+            }
+            val size = BundleExporter.estimateBytes(audioCache, book, chapters, voice)
+            runOnUiThread {
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Save “${book.title}”")
+                    .setMessage(
+                        "One file with the book, its narration, your place in it, " +
+                            "bookmarks, highlights and words — about " +
+                            "${audioCache.formatBytes(size)}.\n\n" +
+                            "Opening it on another phone restores the book with its " +
+                            "audio, not a folder of tracks."
+                    )
+                    .setPositiveButton("Choose where") { _, _ ->
+                        pendingBundleBook = book
+                        bundleSaveLauncher.launch(BundleExporter.fileNameFor(book))
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
+        }.start()
+    }
+
+    private fun writeBundle(book: Book, destination: Uri) {
+        val dialog = progressDialog("Saving ${book.title}", "Preparing…") { BundleExporter.cancel() }
+        Thread {
+            val chapters = try {
+                DocumentManager.loadBookCached(this, File(book.filePath)).second
+            } catch (e: Throwable) {
+                runOnUiThread { dialog.dismiss(); toast("Couldn't read ${book.title}") }
+                return@Thread
+            }
+            val voice = CacheResolver.detectVoice(audioCache, book, chapters, voiceCandidates())
+                ?: ttsController.currentVoiceId ?: "default"
+            try {
+                contentResolver.openOutputStream(destination)?.use { out ->
+                    BundleExporter.export(
+                        context = this,
+                        book = book,
+                        chapters = chapters,
+                        voiceId = voice,
+                        audioCache = audioCache,
+                        bookmarks = bookmarkRepository,
+                        vocab = vocabStore,
+                        appVersion = BuildConfig.VERSION_NAME,
+                        output = out,
+                        progress = object : BundleExporter.Progress {
+                            override fun onChapter(done: Int, total: Int, title: String) {
+                                runOnUiThread {
+                                    dialog.setMessage("Chapter ${done + 1} of $total\n$title")
+                                }
+                            }
+
+                            override fun onDone(bytes: Long) {
+                                runOnUiThread {
+                                    dialog.dismiss()
+                                    toast("Saved · ${audioCache.formatBytes(bytes)} of audio")
+                                }
+                            }
+
+                            override fun onError(message: String) {
+                                runOnUiThread { dialog.dismiss(); toast(message) }
+                            }
+                        }
+                    )
+                } ?: runOnUiThread { dialog.dismiss(); toast("Couldn't write there") }
+            } catch (e: Throwable) {
+                runOnUiThread { dialog.dismiss(); toast(e.message ?: "Save failed") }
+            }
+        }.start()
+    }
+
+    private fun readBundle(source: Uri) {
+        val dialog = progressDialog("Restoring", "Unpacking…") { BundleImporter.cancel() }
+        Thread {
+            try {
+                contentResolver.openInputStream(source)?.use { input ->
+                    BundleImporter.import(
+                        context = this,
+                        input = input,
+                        bookRepository = bookRepository,
+                        bookmarks = bookmarkRepository,
+                        vocab = vocabStore,
+                        audioCache = audioCache,
+                        onVoiceRestored = { bookId, voiceId ->
+                            // Cache keys carry the voice, so the restored book has
+                            // to be read back with the one it was narrated in.
+                            prefs.edit().putString(bookVoiceKey(bookId), voiceId).apply()
+                        },
+                        progress = object : BundleImporter.Progress {
+                            override fun onStage(message: String) {
+                                runOnUiThread { dialog.setMessage(message) }
+                            }
+
+                            override fun onChapter(done: Int, total: Int) {
+                                runOnUiThread {
+                                    dialog.setMessage("Restoring audio · chapter ${done + 1} of $total")
+                                }
+                            }
+
+                            override fun onDone(book: Book, clips: Int) {
+                                runOnUiThread {
+                                    dialog.dismiss()
+                                    refreshLibraryView()
+                                    toast("${book.title} · $clips clips restored")
+                                    openSavedBook(book)
+                                }
+                            }
+
+                            override fun onError(message: String) {
+                                runOnUiThread { dialog.dismiss(); toast(message) }
+                            }
+                        }
+                    )
+                } ?: runOnUiThread { dialog.dismiss(); toast("Couldn't read that file") }
+            } catch (e: Throwable) {
+                runOnUiThread { dialog.dismiss(); toast(e.message ?: "Import failed") }
+            }
+        }.start()
+    }
+
+    /** Voices a book might have been cached with, newest guess first. */
+    private fun voiceCandidates(): List<String> = buildList {
+        ttsController.currentVoiceId?.let { add(it) }
+        addAll(ttsController.getVoices().map { it.id })
+        add("default")
+    }
+
+    private fun progressDialog(
+        title: String,
+        message: String,
+        onCancel: () -> Unit
+    ): androidx.appcompat.app.AlertDialog =
+        MaterialAlertDialogBuilder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setCancelable(false)
+            .setNegativeButton("Stop") { d, _ -> onCancel(); d.dismiss() }
+            .show()
+
+    private fun toast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
     private fun showVocabNotebook() {

@@ -60,6 +60,21 @@
                 <data android:mimeType="application/octet-stream" />
             </intent-filter>
 
+            <!-- A .readest bundle. Matched by suffix because no MIME type says
+                 "a book with its narration" — providers report it as a zip. -->
+            <intent-filter android:priority="100">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:mimeType="application/zip" />
+                <data android:mimeType="application/octet-stream" />
+                <data android:pathPattern=".*\\.readest" />
+                <data android:pathPattern=".*\\..*\\.readest" />
+            </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />

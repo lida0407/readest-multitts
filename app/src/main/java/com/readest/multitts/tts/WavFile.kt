@@ -66,6 +66,30 @@ object WavFile {
         return null
     }
 
+    /**
+     * A 44-byte RIFF header for PCM data of a known length.
+     *
+     * Written after the samples, once the length is known, so a slice can be
+     * streamed out rather than buffered whole.
+     */
+    fun header(sampleRate: Int, channels: Int, bitsPerSample: Int, dataLength: Int): ByteArray {
+        val blockAlign = channels * bitsPerSample / 8
+        val byteRate = sampleRate * blockAlign
+        val out = java.io.ByteArrayOutputStream(44)
+        fun ascii(s: String) = out.write(s.toByteArray(Charsets.US_ASCII))
+        fun int(v: Int) {
+            out.write(v and 0xFF); out.write((v shr 8) and 0xFF)
+            out.write((v shr 16) and 0xFF); out.write((v shr 24) and 0xFF)
+        }
+        fun short(v: Int) { out.write(v and 0xFF); out.write((v shr 8) and 0xFF) }
+
+        ascii("RIFF"); int(36 + dataLength); ascii("WAVE")
+        ascii("fmt "); int(16); short(1); short(channels)
+        int(sampleRate); int(byteRate); short(blockAlign); short(bitsPerSample)
+        ascii("data"); int(dataLength)
+        return out.toByteArray()
+    }
+
     private fun readIntLE(raf: RandomAccessFile): Int {
         val b = ByteArray(4)
         raf.readFully(b)

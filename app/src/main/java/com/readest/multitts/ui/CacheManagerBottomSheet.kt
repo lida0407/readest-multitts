@@ -27,6 +27,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  * and export it as ordinary .m4a files that any music player can open.
  */
 class CacheManagerBottomSheet(
+    /** Asked to write a whole book — file, audio, position and notes. */
+    private val onBundleBook: (com.readest.multitts.model.Book) -> Unit = {},
     private val audioCache: TTSLocalAudioCache,
     private val bookRepository: BookRepository,
     private val voiceCandidates: List<String>
@@ -241,6 +243,14 @@ class CacheManagerBottomSheet(
                 "${audioCache.formatBytes(row.bytes)} · ${row.clips} clips"
             holder.binding.btnExportBook.isEnabled = row.book != null
             holder.binding.btnExportBook.setOnClickListener { startExport(row) }
+            holder.binding.btnBundleBook.setOnClickListener {
+                row.book?.let { onBundleBook(it) }
+                    ?: Toast.makeText(
+                        holder.itemView.context,
+                        "This book is no longer in your library",
+                        Toast.LENGTH_SHORT
+                    ).show()
+            }
             holder.binding.btnDeleteBookCache.setOnClickListener { confirmDelete(row) }
         }
 
