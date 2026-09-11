@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@android:color/transparent" />
-    <stroke android:width="2.5dp" android:color="?attr/rdOutlineMuted" />
-    <corners android:radius="99dp" />
-</shape>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape>
+            <solid android:color="?attr/rdInfoSoft" />
+            <stroke android:width="2.5dp" android:color="?attr/rdOutline" />
+            <corners android:radius="99dp" />
+        </shape>
+    </item>
+    <item>
+        <shape>
+            <solid android:color="@android:color/transparent" />
+            <stroke android:width="2.5dp" android:color="?attr/rdOutlineMuted" />
+            <corners android:radius="99dp" />
+        </shape>
+    </item>
+</selector>

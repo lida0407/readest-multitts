@@ -98,6 +98,7 @@
         <item name="materialButtonStyle">@style/Widget.Readest.Button.Classic</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.Readest.Dialog.Classic</item>
         <item name="sliderStyle">@style/Widget.Readest.Slider.Classic</item>
+        <item name="colorControlHighlight">@color/ripple_classic</item>
         <item name="rdFontHeading">@null</item>
         <item name="rdFontBody">@null</item>
 
@@ -190,6 +191,7 @@
         <item name="materialButtonStyle">@style/Widget.Readest.Button.Pixel</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.Readest.Dialog.Pixel</item>
         <item name="sliderStyle">@style/Widget.Readest.Slider.Pixel</item>
+        <item name="colorControlHighlight">@color/ripple_pixel</item>
         <item name="rdFontHeading">@font/press_start_2p</item>
         <item name="rdFontBody">@font/vt323</item>
 
@@ -283,6 +285,7 @@
         <item name="materialButtonStyle">@style/Widget.Readest.Button.Cozy</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.Readest.Dialog.Cozy</item>
         <item name="sliderStyle">@style/Widget.Readest.Slider.Cozy</item>
+        <item name="colorControlHighlight">@color/ripple_cozy</item>
         <item name="rdFontHeading">@font/fredoka_bold</item>
         <item name="rdFontBody">@font/nunito_bold</item>
 

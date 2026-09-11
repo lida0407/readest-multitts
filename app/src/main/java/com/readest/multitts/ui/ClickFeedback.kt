@@ -1,23 +1,29 @@
 package com.readest.multitts.ui
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.StateListDrawable
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.HapticFeedbackConstants
 
 /**
  * Press feedback for the app's custom controls.
  *
- * Most of the chips and rows here are plain TextViews, which give no sign they were
- * hit. This adds the two cues a tap is expected to produce: a quick shrink under the
- * finger and a light haptic tick.
+ * Most chips and rows here are plain TextViews, which give no sign they were
+ * hit. This adds the two cues a tap is expected to produce: a quick shrink under
+ * the finger and a light haptic tick.
+ *
+ * A view whose background already states a pressed look — the primary buttons
+ * and chips, which sink into their own shadow — is left alone apart from the
+ * tick. Scaling those too would read as the button doing two different things
+ * at once.
  */
 object ClickFeedback {
 
-    private const val PRESSED_SCALE = 0.94f
-    private const val DOWN_MS = 70L
-    private const val UP_MS = 130L
+    private const val PRESSED_SCALE = 0.93f
+    private const val DOWN_MS = 60L
+    private const val UP_MS = 140L
 
     /** Apply to one view. Safe on views that already have a click listener. */
     @SuppressLint("ClickableViewAccessibility")
@@ -25,19 +31,26 @@ object ClickFeedback {
         if (view.getTag(TAG_KEY) == true) return
         view.setTag(TAG_KEY, true)
 
+        val sinks = view.background is StateListDrawable
+
         view.setOnTouchListener { v, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    v.animate().scaleX(PRESSED_SCALE).scaleY(PRESSED_SCALE)
-                        .setDuration(DOWN_MS).start()
+                    if (!sinks) {
+                        v.animate().scaleX(PRESSED_SCALE).scaleY(PRESSED_SCALE)
+                            .setDuration(DOWN_MS).start()
+                    }
                     v.performHapticFeedback(
                         HapticFeedbackConstants.VIRTUAL_KEY,
                         HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
                     )
                 }
+
                 MotionEvent.ACTION_UP,
                 MotionEvent.ACTION_CANCEL -> {
-                    v.animate().scaleX(1f).scaleY(1f).setDuration(UP_MS).start()
+                    if (!sinks) {
+                        v.animate().scaleX(1f).scaleY(1f).setDuration(UP_MS).start()
+                    }
                 }
             }
             false // never consume: the view's own click handling still runs

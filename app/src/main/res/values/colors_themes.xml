@@ -41,4 +41,11 @@
     <color name="cz_lilac">#C9A0DC</color>
     <color name="cz_on_dark">#FFF9EC</color>
 
+
+    <!-- Press ripples. Alpha is high enough to register on one frame at a
+         glance, which is all a tap gives you. -->
+    <color name="ripple_classic">#332563EB</color>
+    <color name="ripple_pixel">#59FFCD75</color>
+    <color name="ripple_cozy">#40F0785A</color>
+
 </resources>
