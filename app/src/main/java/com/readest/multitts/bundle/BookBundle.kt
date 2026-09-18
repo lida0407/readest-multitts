@@ -10,7 +10,12 @@ package com.readest.multitts.bundle
 object BookBundle {
 
     const val EXTENSION = "readest"
-    const val MIME = "application/zip"
+    /**
+     * Declared as opaque bytes, not as a zip: a documents provider that is told
+     * "zip" appends ".zip" to the name, and "Book.readest.zip" is neither
+     * recognisable by its extension nor what anyone asked for.
+     */
+    const val MIME = "application/octet-stream"
 
     /** Bumped when a field stops meaning what it used to. */
     const val FORMAT = 1

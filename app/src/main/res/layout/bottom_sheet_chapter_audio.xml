@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/rdPanel"
+    android:orientation="vertical"
+    android:paddingTop="8dp">
+
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="14dp"
+        android:background="?attr/rdDragHandleBg" />
+
+    <TextView
+        android:id="@+id/tvChapterAudioTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp"
+        android:text="Chapter audio · 章节音频"
+        android:textAppearance="?attr/rdHeadingAppearance" />
+
+    <TextView
+        android:id="@+id/tvChapterAudioSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp"
+        android:text="Counting…"
+        android:textAppearance="?attr/rdSubtitleAppearance" />
+
+    <!-- Quick selections. "Already read" is the one that frees space. -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:clipToPadding="false"
+        android:paddingStart="22dp"
+        android:paddingEnd="22dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/chipSelectRead"
+                style="@style/Readest.PickChip"
+                android:text="Already read 已读" />
+
+            <TextView
+                android:id="@+id/chipSelectCached"
+                style="@style/Readest.PickChip"
+                android:text="Cached 已缓存" />
+
+            <TextView
+                android:id="@+id/chipSelectMissing"
+                style="@style/Readest.PickChip"
+                android:text="Not cached 未缓存" />
+
+            <TextView
+                android:id="@+id/chipSelectAhead"
+                style="@style/Readest.PickChip"
+                android:text="Next 10 接下来10章" />
+
+            <TextView
+                android:id="@+id/chipSelectAll"
+                style="@style/Readest.PickChip"
+                android:text="All 全选" />
+
+            <TextView
+                android:id="@+id/chipSelectNone"
+                style="@style/Readest.PickChip"
+                android:text="None 清空" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvChapterAudio"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="6dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/btnChapterDelete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:background="?attr/rdChipBgMuted"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:paddingTop="13dp"
+            android:paddingBottom="13dp"
+            android:text="Delete audio"
+            android:textAppearance="?attr/rdTitleAppearance"
+            android:textColor="?attr/rdDanger" />
+
+        <TextView
+            android:id="@+id/btnChapterCache"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?attr/rdButtonPrimaryBg"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:gravity="center"
+            android:paddingTop="13dp"
+            android:paddingBottom="13dp"
+            android:text="Cache"
+            android:textAppearance="?attr/rdTitleAppearance"
+            android:textColor="?attr/rdOnAccent" />
+    </LinearLayout>
+</LinearLayout>

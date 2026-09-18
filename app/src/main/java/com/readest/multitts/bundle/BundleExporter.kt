@@ -9,6 +9,7 @@ import com.readest.multitts.model.Chapter
 import com.readest.multitts.tts.CacheResolver
 import com.readest.multitts.tts.SentenceSplitter
 import com.readest.multitts.tts.TTSLocalAudioCache
+import com.readest.multitts.tts.WavFile
 import com.readest.multitts.vocab.VocabStore
 import java.io.File
 import java.io.OutputStream
@@ -76,9 +77,14 @@ object BundleExporter {
                 source.inputStream().use { it.copyTo(zip) }
                 zip.closeEntry()
 
-                chapters.forEachIndexed { position, chapter ->
+                // Only chapters with audio are worth encoding, and a folder
+                // listing says which those are without a stat per sentence.
+                val withAudio = audioCache.chaptersWithAudio(book.id)
+                val work = if (withAudio == null) chapters else chapters.filter { it.index in withAudio }
+
+                work.forEachIndexed { position, chapter ->
                     if (cancelled) return@forEachIndexed
-                    progress.onChapter(position, chapters.size, chapter.title)
+                    progress.onChapter(position, work.size, chapter.title)
 
                     val clips = clipsFor(audioCache, book, chapter, voiceId)
                     if (clips.isEmpty()) return@forEachIndexed
@@ -169,16 +175,44 @@ object BundleExporter {
         )?.let { item.index to it }
     }
 
-    /** Rough size of the bundle, so the reader can decide before waiting for it. */
+    /**
+     * Rough size of the bundle, so the reader can decide before waiting for it.
+     *
+     * Measured from folder sizes rather than by resolving each sentence: on a
+     * 600-chapter book the per-sentence way took the better part of a minute
+     * with nothing on screen, to produce a number that is an estimate anyway.
+     */
     fun estimateBytes(
         cache: TTSLocalAudioCache,
         book: Book,
         chapters: List<Chapter>,
         voiceId: String
     ): Long {
-        val audio = CacheResolver.bookAudio(cache, book, chapters, voiceId).sumOf { it.bytes }
+        val withAudio = cache.chaptersWithAudio(book.id)
+        val audio = if (withAudio == null) {
+            CacheResolver.bookAudio(cache, book, chapters, voiceId).sumOf { it.bytes }
+        } else {
+            withAudio.sumOf { cache.chapterFolderBytes(book.id, it) }
+        }
         val bookBytes = File(book.filePath).let { if (it.exists()) it.length() else 0L }
-        // AAC at 64 kbps against 16-bit PCM: about a twentieth, before the zip.
-        return bookBytes + audio / 20
+        return bookBytes + (audio * compressionRatio(cache, book, withAudio)).toLong()
+    }
+
+    /**
+     * AAC at 64 kbps against the clips' own PCM rate.
+     *
+     * Read from a real clip because the ratio depends on the voice: 24 kHz mono
+     * compresses about six times, 16 kHz about four. Assuming a fixed twentieth
+     * had a 3.5 GB book announcing itself as 175 MB and arriving at 600.
+     */
+    private fun compressionRatio(cache: TTSLocalAudioCache, book: Book, chapters: Set<Int>?): Double {
+        val sample = chapters?.firstOrNull()?.let { cache.anyClip(book.id, it) }
+        val info = sample?.let { WavFile.read(it) }
+        val pcmBytesPerSecond = if (info != null) {
+            info.sampleRate * info.channels * (info.bitsPerSample / 8)
+        } else {
+            24_000 * 2
+        }
+        return (64_000 / 8.0) / pcmBytesPerSecond
     }
 }

@@ -48,6 +48,8 @@ class CacheService : Service() {
         const val EXTRA_WHOLE_BOOK = "whole_book"
         const val EXTRA_CHAPTER_INDEX = "chapter_index"
         const val EXTRA_RESUME = "resume"
+        const val EXTRA_CHAPTER_SET = "chapter_set"
+        const val EXTRA_VOICE = "voice"
 
         data class State(
             val bookId: String? = null,
@@ -97,13 +99,25 @@ class CacheService : Service() {
             }
         }
 
-        fun start(context: Context, bookId: String, wholeBook: Boolean, chapterIndex: Int, resume: Boolean) {
+        fun start(
+            context: Context,
+            bookId: String,
+            wholeBook: Boolean,
+            chapterIndex: Int,
+            resume: Boolean,
+            /** Hand-picked chapters; overrides [wholeBook] and [chapterIndex]. */
+            chapterSet: List<Int>? = null,
+            /** Narrate in this voice, so a top-up matches what is already cached. */
+            voiceId: String? = null
+        ) {
             val intent = Intent(context, CacheService::class.java).apply {
                 action = ACTION_START
                 putExtra(EXTRA_BOOK_ID, bookId)
                 putExtra(EXTRA_WHOLE_BOOK, wholeBook)
                 putExtra(EXTRA_CHAPTER_INDEX, chapterIndex)
                 putExtra(EXTRA_RESUME, resume)
+                chapterSet?.let { putExtra(EXTRA_CHAPTER_SET, it.toIntArray()) }
+                voiceId?.let { putExtra(EXTRA_VOICE, it) }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intent)
@@ -171,6 +185,8 @@ class CacheService : Service() {
         val wholeBook = intent.getBooleanExtra(EXTRA_WHOLE_BOOK, false)
         val chapterIndex = intent.getIntExtra(EXTRA_CHAPTER_INDEX, 0)
         val resume = intent.getBooleanExtra(EXTRA_RESUME, false)
+        val chapterSet = intent.getIntArrayExtra(EXTRA_CHAPTER_SET)?.toList()
+        val voice = intent.getStringExtra(EXTRA_VOICE)
 
         val book = bookRepository.getAllBooks().firstOrNull { it.id == bookId } ?: return
 
@@ -187,10 +203,17 @@ class CacheService : Service() {
         startForeground(NOTIFICATION_ID, buildNotification())
         acquireWakeLock()
 
-        worker = Thread { runJob(book, wholeBook, chapterIndex, resume) }.also { it.start() }
+        worker = Thread { runJob(book, wholeBook, chapterIndex, resume, chapterSet, voice) }.also { it.start() }
     }
 
-    private fun runJob(book: Book, wholeBook: Boolean, chapterIndex: Int, resume: Boolean) {
+    private fun runJob(
+        book: Book,
+        wholeBook: Boolean,
+        chapterIndex: Int,
+        resume: Boolean,
+        requestedSet: List<Int>? = null,
+        requestedVoice: String? = null
+    ) {
         val prefs = getSharedPreferences("reader_settings", Context.MODE_PRIVATE)
         PdfParser.init(this)
         val chapters: List<Chapter> = try {
@@ -204,7 +227,13 @@ class CacheService : Service() {
         val controller = TtsEngine.get(this).also { ttsController = it }
         controller.currentRate = prefs.getFloat("tts_rate", 1.0f)
         controller.currentPitch = prefs.getFloat("tts_pitch", 1.0f)
-        val savedVoice = prefs.getString("tts_voice", null)
+        // The book's own voice, not whichever voice was picked last. Clips are
+        // keyed by voice, so caching part of an English book while the last
+        // voice used was Chinese filled it with audio in the wrong language
+        // under a key nothing would ever look up.
+        val savedVoice = requestedVoice
+            ?: prefs.getString("book_voice_${book.id}", null)
+            ?: prefs.getString("tts_voice", null)
         val wantedEngine = prefs.getString("tts_engine", null)
             ?: MultiTTSManager.getInstalledMultiTTSPackage(this)
 
@@ -226,6 +255,11 @@ class CacheService : Service() {
 
             val synthesizer = TTSPreSynthesizer(controller, audioCache).also { preSynthesizer = it }
             val checkpoint = if (resume) checkpoints.get(book.id) else null
+            // A picked set is run as a whole-book job over just those chapters:
+            // the whole-book loop already walks whatever list it is handed.
+            val chapterSet = (requestedSet ?: checkpoint?.chapterSet)
+                ?.toSortedSet()
+                ?.takeIf { it.isNotEmpty() }
 
             val listener = object : PreSynthesisProgressListener {
                 override fun onProgress(current: Int, total: Int, currentItemText: String) {
@@ -258,12 +292,13 @@ class CacheService : Service() {
                         CacheCheckpoint(
                             bookId = book.id,
                             bookTitle = book.title,
-                            wholeBook = wholeBook,
+                            wholeBook = wholeBook || chapterSet != null,
                             chapterIndex = chapterIdx,
                             sentenceIndex = sentenceIndex,
                             processed = processed,
                             total = total,
-                            voiceId = controller.currentVoiceId ?: "default"
+                            voiceId = controller.currentVoiceId ?: "default",
+                            chapterSet = chapterSet?.toList()
                         )
                     )
                 }
@@ -287,7 +322,15 @@ class CacheService : Service() {
                 }
             }
 
-            if (wholeBook) {
+            if (chapterSet != null) {
+                val picked = chapters.filter { it.index in chapterSet }
+                val resumeAt = checkpoint?.takeIf { it.chapterIndex in chapterSet }
+                synthesizer.preSynthesizeWholeBook(
+                    book, picked, listener,
+                    startChapterIndex = resumeAt?.chapterIndex ?: (picked.firstOrNull()?.index ?: 0),
+                    startSentenceIndex = resumeAt?.sentenceIndex ?: 0
+                )
+            } else if (wholeBook) {
                 synthesizer.preSynthesizeWholeBook(
                     book, chapters, listener,
                     startChapterIndex = checkpoint?.chapterIndex ?: 0,

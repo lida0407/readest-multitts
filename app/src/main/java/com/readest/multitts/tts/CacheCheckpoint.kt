@@ -19,7 +19,13 @@ data class CacheCheckpoint(
     val processed: Int,
     val total: Int,
     val voiceId: String,
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    /**
+     * The chapters a hand-picked run covers, so resuming it continues that
+     * selection instead of widening to the whole book. Null for the two
+     * original scopes, and for checkpoints written before this existed.
+     */
+    val chapterSet: List<Int>? = null
 ) {
     val percent: Int
         get() = if (total > 0) ((processed.toFloat() / total) * 100).toInt().coerceIn(0, 100) else 0

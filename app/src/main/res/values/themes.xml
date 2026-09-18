@@ -24,4 +24,19 @@
         <item name="android:letterSpacing">0.08</item>
         <item name="android:textAppearance">?attr/rdEyebrowAppearance</item>
     </style>
+    <!-- A quick-selection chip in the chapter audio picker. -->
+    <style name="Readest.PickChip" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:background">?attr/rdChipBg</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:paddingStart">11dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingEnd">11dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:textAppearance">?attr/rdChipAppearance</item>
+        <item name="android:textColor">?attr/rdOnChip</item>
+    </style>
 </resources>

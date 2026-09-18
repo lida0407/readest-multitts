@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- A themed background rather than MaterialCardView: the card view paints its
+     own surface overlay, which washed every card coral in Cozy, and it cannot
+     draw the hard keyline Pixel and Cozy cards are made of. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
-    app:cardBackgroundColor="?attr/rdPanel"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="0dp"
-    app:strokeColor="?attr/rdOutlineMuted"
-    app:strokeWidth="1dp">
+    android:background="?attr/rdCardBg"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -48,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="?attr/rdSuccess"
-                android:text="Audio only 仅音频"
+                android:text="Audio 音频"
                 android:textAllCaps="false"
                 android:textColor="?attr/rdOnAccent"
                 android:textSize="12sp"
@@ -88,4 +90,4 @@
                 app:strokeColor="?attr/rdDanger" />
         </LinearLayout>
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</FrameLayout>

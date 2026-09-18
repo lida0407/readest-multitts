@@ -285,6 +285,23 @@
                     android:textSize="12sp" />
             </RadioGroup>
 
+            <!-- The third size: any chapters you pick, cached or deleted. -->
+            <TextView
+                android:id="@+id/btnChooseChapters"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="?attr/rdChipBgMuted"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:paddingTop="9dp"
+                android:paddingBottom="9dp"
+                android:text="Choose chapters… · 选择章节"
+                android:textAppearance="?attr/rdChipAppearance"
+                android:textColor="?attr/rdOnChip" />
+
             <!-- Unfinished job from a previous session -->
             <TextView
                 android:id="@+id/tvResumeHint"

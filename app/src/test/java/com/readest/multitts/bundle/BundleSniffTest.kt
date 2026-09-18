@@ -55,6 +55,8 @@ class BundleSniffTest {
     fun `the name check accepts only our extension`() {
         assertTrue(BundleImporter.looksLikeBundle("Monte Cristo.readest"))
         assertTrue(BundleImporter.looksLikeBundle("MONTE.READEST"))
+        assertTrue("a provider may append .zip", BundleImporter.looksLikeBundle("Monte.readest.zip"))
+        assertFalse(BundleImporter.looksLikeBundle("archive.zip"))
         assertFalse(BundleImporter.looksLikeBundle("book.epub"))
         assertFalse(BundleImporter.looksLikeBundle("chapter.m4a"))
         assertFalse(BundleImporter.looksLikeBundle(null))

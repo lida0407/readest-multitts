@@ -156,6 +156,126 @@ class TTSLocalAudioCache(private val context: Context) {
 
     fun getFormattedCacheSize(): String = formatBytes(getTotalCacheSizeBytes())
 
+    /** How much of one chapter is cached, and how big it is. */
+    data class ChapterStatus(
+        val cached: Int,
+        val total: Int,
+        val bytes: Long,
+        /**
+         * Everything in the chapter's folder, whatever voice made it. Clips in
+         * another voice are invisible to playback but still take space, and the
+         * only way to reclaim it is to be able to see it.
+         */
+        val diskBytes: Long = bytes
+    ) {
+        val isComplete: Boolean get() = total > 0 && cached >= total
+        val isEmpty: Boolean get() = cached == 0
+        val hasOrphans: Boolean get() = diskBytes > bytes
+        val percent: Int get() = if (total == 0) 0 else (cached * 100 / total)
+    }
+
+    /**
+     * Cached sentences in one chapter, checked against a directory listing
+     * rather than a stat per clip.
+     *
+     * A long book is tens of thousands of clips; asking the filesystem about
+     * each one is what made the chapter list slow to open. One listing per
+     * chapter and a hash lookup per sentence is the same answer, quickly.
+     * Clips written under a different voice are not counted, because playback
+     * would not find them either.
+     */
+    fun chapterStatus(
+        bookId: String,
+        chapterIndex: Int,
+        voiceId: String,
+        sentences: List<Pair<Int, String>>,
+        legacyNames: Set<String> = emptySet()
+    ): ChapterStatus {
+        val dir = chapterDir(bookId, chapterIndex)
+        val files = dir.listFiles() ?: emptyArray()
+        val names = files.mapTo(HashSet(files.size)) { it.name }
+        val folderBytes = files.sumOf { it.length() }
+
+        var cached = 0
+        var bytes = 0L
+        var legacyBytes = 0L
+        for ((sentenceIndex, text) in sentences) {
+            val name = getCacheKey(bookId, chapterIndex, sentenceIndex, voiceId, 1.0f, 1.0f, text) + ".wav"
+            when {
+                name in names -> {
+                    cached++
+                    bytes += File(dir, name).length()
+                }
+                name in legacyNames -> {
+                    // Loose in the book folder, from before chapters had folders.
+                    val size = File(bookDir(bookId), name).length()
+                    cached++
+                    bytes += size
+                    legacyBytes += size
+                }
+            }
+        }
+        return ChapterStatus(cached, sentences.size, bytes, folderBytes + legacyBytes)
+    }
+
+    /**
+     * Chapters that have any audio at all, from one listing of the book folder.
+     *
+     * Null means "can't tell": clips from before chapters had folders sit loose
+     * in the book folder with nothing in their name saying which chapter they
+     * belong to, so a caller has to fall back to checking every chapter.
+     */
+    fun chaptersWithAudio(bookId: String): Set<Int>? {
+        val entries = bookDir(bookId).listFiles() ?: return emptySet()
+        if (entries.any { it.isFile && it.name.endsWith(".wav") }) return null
+        return entries.mapNotNullTo(HashSet()) { f ->
+            if (f.isDirectory && f.name.startsWith("c")) f.name.drop(1).toIntOrNull() else null
+        }
+    }
+
+    /** Any one clip from a chapter, to read the format audio was made in. */
+    fun anyClip(bookId: String, chapterIndex: Int): File? =
+        chapterDir(bookId, chapterIndex).listFiles()?.firstOrNull { it.isFile && it.length() > 44 }
+
+    /** Bytes in one chapter's folder, whatever voice made them. */
+    fun chapterFolderBytes(bookId: String, chapterIndex: Int): Long =
+        chapterDir(bookId, chapterIndex).listFiles()?.sumOf { it.length() } ?: 0L
+
+    /** Clips from before the per-chapter layout, which sit loose in the book folder. */
+    fun legacyNames(bookId: String): Set<String> =
+        bookDir(bookId).listFiles()?.filter { it.isFile }?.map { it.name }?.toHashSet() ?: emptySet()
+
+    /**
+     * Deletes one chapter's audio and reports what it freed.
+     *
+     * The whole chapter folder goes, whatever voice made it — the reader asked
+     * for the chapter to be gone, not for one voice's copy of it. Loose clips
+     * from the old flat layout can only be matched by key, so those need the
+     * sentences.
+     */
+    fun clearChapter(
+        bookId: String,
+        chapterIndex: Int,
+        voiceId: String,
+        sentences: List<Pair<Int, String>>
+    ): Long {
+        var freed = 0L
+        val dir = chapterDir(bookId, chapterIndex)
+        dir.listFiles()?.forEach { freed += it.length() }
+        dir.deleteRecursively()
+
+        val book = bookDir(bookId)
+        for ((sentenceIndex, text) in sentences) {
+            val legacy = File(book, getCacheKey(bookId, chapterIndex, sentenceIndex, voiceId, 1.0f, 1.0f, text) + ".wav")
+            if (legacy.exists()) {
+                freed += legacy.length()
+                legacy.delete()
+            }
+        }
+        invalidateTotalCacheSize()
+        return freed
+    }
+
     fun clearBookCache(bookId: String) {
         invalidateTotalCacheSize()
         val dir = bookDir(bookId)

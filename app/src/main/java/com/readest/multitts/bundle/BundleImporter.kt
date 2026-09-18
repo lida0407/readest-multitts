@@ -41,8 +41,12 @@ object BundleImporter {
     }
 
     /** True when this looks like one of ours, so a plain audio file is refused. */
-    fun looksLikeBundle(name: String?): Boolean =
-        name?.endsWith(".${BookBundle.EXTENSION}", ignoreCase = true) == true
+    fun looksLikeBundle(name: String?): Boolean {
+        val lower = name?.lowercase() ?: return false
+        // Some providers append ".zip" whatever the declared type.
+        return lower.endsWith(".${BookBundle.EXTENSION}") ||
+            lower.endsWith(".${BookBundle.EXTENSION}.zip")
+    }
 
     /**
      * Looks inside when the name does not say.
@@ -176,6 +180,13 @@ object BundleImporter {
                     bitsPerSample = chapterAudio.bitsPerSample,
                     destination = { sentenceIndex ->
                         val text = sentences[sentenceIndex]?.text ?: return@decodeInto null
+                        // A clip already here is the lossless original; the
+                        // bundle's copy has been through AAC. Keep the better one.
+                        if (audioCache.isCached(
+                                imported.id, chapterAudio.index, sentenceIndex,
+                                found.voiceId, 1.0f, 1.0f, text
+                            )
+                        ) return@decodeInto null
                         audioCache.getAudioFile(
                             bookId = imported.id,
                             chapterIndex = chapterAudio.index,

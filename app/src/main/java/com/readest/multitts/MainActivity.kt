@@ -41,6 +41,7 @@ import com.readest.multitts.theme.GameState
 import com.readest.multitts.theme.Words
 import com.readest.multitts.tts.CacheCheckpointStore
 import com.readest.multitts.tts.CacheResolver
+import com.readest.multitts.tts.CacheService
 import com.readest.multitts.tts.MultiTTSManager
 import com.readest.multitts.tts.TTSEngineController
 import com.readest.multitts.tts.TTSLocalAudioCache
@@ -49,6 +50,7 @@ import com.readest.multitts.tts.TtsEngine
 import com.readest.multitts.tts.VoiceBundle
 import com.readest.multitts.ui.BooksAdapter
 import com.readest.multitts.ui.CacheManagerBottomSheet
+import com.readest.multitts.ui.ChapterAudioBottomSheet
 import com.readest.multitts.ui.ClickFeedback
 import com.readest.multitts.ui.ContentsBottomSheet
 import com.readest.multitts.ui.MultiTTSDownloadDialog
@@ -1177,6 +1179,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
     private fun showCacheManager() {
         val sheet = CacheManagerBottomSheet(
             onBundleBook = { book -> offerBundle(book) },
+            onOpenChapters = { book -> showChapterAudio(book) },
             audioCache = audioCache,
             bookRepository = bookRepository,
             // The cache key includes the voice, so the manager needs the candidates
@@ -1273,6 +1276,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
                 applyKeepScreenOn(preSynthesizer.isRunning() && !preSynthesizer.isPaused())
             },
             onCachingActiveChanged = { active -> applyKeepScreenOn(active) },
+            onChooseChapters = { currentBook?.let { showChapterAudio(it) } },
             onManageCache = { showCacheManager() },
             checkpoints = checkpointStore,
             savedLanguage = prefs.getString("tts_language", "auto") ?: "auto",
@@ -1525,6 +1529,55 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
         )
     }
 
+    // ------------------------------------------------------ chapter audio
+
+    /**
+     * Picks chapters to narrate or to throw away.
+     *
+     * The voice is worked out from what is on disk rather than taken from the
+     * current setting: a book cached last month in another voice should still
+     * show as cached, and deleting it should still find it.
+     */
+    private fun showChapterAudio(book: Book) {
+        val saved = bookRepository.getAllBooks().firstOrNull { it.id == book.id } ?: book
+        Thread {
+            val chapters = try {
+                DocumentManager.loadBookCached(this, File(saved.filePath)).second
+            } catch (e: Throwable) {
+                runOnUiThread { toast("Couldn't read ${saved.title}") }
+                return@Thread
+            }
+            val voice = CacheResolver.detectVoice(audioCache, saved, chapters, voiceCandidates())
+                ?: ttsController.currentVoiceId ?: "default"
+            runOnUiThread {
+                ChapterAudioBottomSheet(
+                    book = saved,
+                    audioCache = audioCache,
+                    voiceId = voice,
+                    chapterWord = { n -> words.chapterShort(n) },
+                    onCache = { picked, voice -> cacheChapters(saved, picked, voice) },
+                    onChanged = { refreshCachedAhead() }
+                ).show(supportFragmentManager, "chapter_audio")
+            }
+        }.start()
+    }
+
+    private fun cacheChapters(book: Book, picked: List<Int>, voice: String) {
+        CacheService.start(
+            context = this,
+            bookId = book.id,
+            wholeBook = false,
+            chapterIndex = picked.first(),
+            resume = false,
+            chapterSet = picked,
+            voiceId = voice
+        )
+        toast(
+            "Caching ${picked.size} chapter${if (picked.size == 1) "" else "s"} · " +
+                "progress in Voice & playback"
+        )
+    }
+
     // ------------------------------------------------------------- bundles
 
     /**
@@ -1535,6 +1588,7 @@ class MainActivity : AppCompatActivity(), ReaderBridgeListener, PlaybackEventLis
      * the picker opens is what makes "save to Drive" a reasonable thing to do.
      */
     private fun offerBundle(book: Book) {
+        toast("Measuring ${book.title}…")
         Thread {
             val chapters = try {
                 DocumentManager.loadBookCached(this, File(book.filePath)).second

@@ -33,9 +33,14 @@ object CacheResolver {
         chapters: List<Chapter>,
         candidateVoices: List<String>
     ): String? {
-        // Probe a handful of sentences spread across the book
+        // Probe a handful of sentences, from chapters that have audio at all.
+        // Probing only the opening chapters found nothing on a book cached from
+        // chapter 431 onwards, and reported the whole book as uncached.
+        val withAudio = cache.chaptersWithAudio(book.id)
+        val candidates = if (withAudio.isNullOrEmpty()) chapters
+            else chapters.filter { it.index in withAudio }
         val probes = mutableListOf<Triple<Int, Int, String>>()
-        for (chapter in chapters) {
+        for (chapter in candidates) {
             for (item in SentenceSplitter.split(chapter).take(4)) {
                 probes.add(Triple(chapter.index, item.index, item.text))
             }

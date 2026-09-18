@@ -29,6 +29,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 class CacheManagerBottomSheet(
     /** Asked to write a whole book — file, audio, position and notes. */
     private val onBundleBook: (com.readest.multitts.model.Book) -> Unit = {},
+    /** Opens the chapter-by-chapter view of one book's audio. */
+    private val onOpenChapters: (com.readest.multitts.model.Book) -> Unit = {},
     private val audioCache: TTSLocalAudioCache,
     private val bookRepository: BookRepository,
     private val voiceCandidates: List<String>
@@ -240,9 +242,16 @@ class CacheManagerBottomSheet(
             val row = items[position]
             holder.binding.tvCacheBookTitle.text = row.title
             holder.binding.tvCacheBookMeta.text =
-                "${audioCache.formatBytes(row.bytes)} · ${row.clips} clips"
+                "${audioCache.formatBytes(row.bytes)} · ${row.clips} clips" +
+                    if (row.book != null) " · chapters ›" else ""
             holder.binding.btnExportBook.isEnabled = row.book != null
             holder.binding.btnExportBook.setOnClickListener { startExport(row) }
+            holder.itemView.setOnClickListener {
+                row.book?.let {
+                    onOpenChapters(it)
+                    dismiss()
+                }
+            }
             holder.binding.btnBundleBook.setOnClickListener {
                 row.book?.let { onBundleBook(it) }
                     ?: Toast.makeText(

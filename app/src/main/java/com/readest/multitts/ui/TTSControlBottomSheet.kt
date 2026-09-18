@@ -45,6 +45,8 @@ class TTSControlBottomSheet(
     private val onKeepAwakeChanged: (Boolean) -> Unit = {},
     private val onCachingActiveChanged: (Boolean) -> Unit = {},
     private val onManageCache: () -> Unit = {},
+    /** Opens the per-chapter picker for this book. */
+    private val onChooseChapters: () -> Unit = {},
     private val checkpoints: CacheCheckpointStore? = null,
     private val savedLanguage: String = "auto",
     private val savedWholeBookScope: Boolean = false,
@@ -276,6 +278,13 @@ class TTSControlBottomSheet(
             showCachingControls(true)
         }
 
+        binding.btnChooseChapters.visibility =
+            if (currentBook == null) View.GONE else View.VISIBLE
+        binding.btnChooseChapters.setOnClickListener {
+            onChooseChapters()
+            dismiss()
+        }
+
         binding.btnClearCache.setOnClickListener {
             onManageCache()
         }
@@ -353,7 +362,12 @@ class TTSControlBottomSheet(
             return
         }
 
-        val scopeLabel = if (checkpoint.wholeBook) "whole book 全书" else "chapter 本章"
+        val picked = checkpoint.chapterSet
+        val scopeLabel = when {
+            picked != null -> "${picked.size} chosen chapter${if (picked.size == 1) "" else "s"} 选定章节"
+            checkpoint.wholeBook -> "whole book 全书"
+            else -> "chapter 本章"
+        }
         binding.tvResumeHint.visibility = View.VISIBLE
         binding.tvResumeHint.text =
             "⏸ Unfinished $scopeLabel cache · Ch ${checkpoint.chapterIndex + 1}, " +
